@@ -29,7 +29,7 @@ public final class Main extends OutputWriter
     
     private static final String LOG_FILE = "awele.log";
     private static final String ANONYMOUS_LOG_FILE = "awele.anonymous.log";
-    private static final int NB_RUNS = 100;
+    private static final int NB_RUNS = 1;
     //private static final int NB_RUNS = 1;
     private static final int MAX_LEARNING_TIME = 1000 * 60 * 60 * 1; // 1 h
     private static final int MAX_DECISION_TIME = 200; // 100 ms
@@ -123,8 +123,11 @@ public final class Main extends OutputWriter
         ArrayList <Class <? extends Bot>> subClasses = new ArrayList <Class <? extends Bot>> ();
         for (Class <? extends Bot> subClass : subClassesTmp)
         {
-            if (!Modifier.isAbstract (subClass.getModifiers ()))
-                subClasses.add (subClass);
+            if (!Modifier.isAbstract (subClass.getModifiers ())){
+                if (subClass.getPackageName().contains("maxence") || subClass.getPackageName().contains("minmax"))
+                    subClasses.add (subClass);
+            }
+
         }
         this.print (subClasses.size () + " classes ont été trouvées");
         for (Class <? extends Bot> botClass: subClasses)
@@ -217,9 +220,9 @@ public final class Main extends OutputWriter
                 for (int k = 0; k < Main.NB_RUNS; k++)
                 {
                     Awele awele = new Awele (this.bots.get (i), this.bots.get (j));
-                    //this.print ();
+                    this.print ();
                     //awele.addOutputs (this.getOutputs ());
-                    //awele.addDebug (StandardOutput.getInstance ());
+                 //   awele.addDebug (StandardOutput.getInstance ());
                     try
                     {
                         awele.play ();
