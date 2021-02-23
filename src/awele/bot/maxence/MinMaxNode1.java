@@ -3,10 +3,6 @@ package awele.bot.maxence;
 import awele.core.Board;
 import awele.core.InvalidBotException;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-
 public abstract class MinMaxNode1 {
 
 
@@ -29,8 +25,12 @@ public abstract class MinMaxNode1 {
     public MinMaxNode1(Board board, int depth, double alpha, double beta)
     {
 
+        if (MinMaxBot1.depthMAx < depth)MinMaxBot1.depthMAx = depth;
+        MinMaxBot1.depth = depth;
+        MinMaxBot1.nodes++;
+       MinMaxBot1.budget--;
+       // MinMaxBot1.budget = MinMaxBot1.budget /6;
 
-//       MinMaxBot1.count++;
 
 
         /* On crée un tableau des évaluations des coups à jouer pour chaque situation possible */
@@ -61,10 +61,22 @@ public abstract class MinMaxNode1 {
                     else
                     {
                         /* Si la profondeur maximale n'est pas atteinte */
-                        if (depth < MinMaxNode1.maxDepth)
+                        //if (depth < MinMaxNode1.maxDepth)
+                   // if (MinMaxBot1.budget / 6 > MinMaxBot1.nodes * Math.pow(6,depth+1) )
+                        int nbFils = 0;
+                        for (int j:board.getPlayerHoles()) {
+                            if (j != 0)nbFils++;
+                        }
+                        int n = nbFils * (depth-1) * 6;
+                       //MinMaxBot1.budget /= nbFils;
+
+                    if (MinMaxBot1.budget/nbFils > MinMaxBot1.nodes * depth)
                         {
+
+
                             /* On construit le noeud suivant */
                             MinMaxNode1 child = this.getNextNode (copy, depth + 1, alpha, beta);
+
                             /* On récupère l'évaluation du noeud fils */
                             this.decision [i] = child.getEvaluation ();
                         }
@@ -77,6 +89,9 @@ public abstract class MinMaxNode1 {
                     /* Coupe alpha-beta */
                     if (depth > 0)
                     {
+                        if (this.alphabeta (this.evaluation, alpha, beta)){
+                            break;
+                        }
                         alpha = this.alpha (this.evaluation, alpha);
                         beta = this.beta (this.evaluation, beta);
                     }

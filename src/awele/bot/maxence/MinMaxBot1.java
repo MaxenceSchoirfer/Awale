@@ -10,16 +10,22 @@ import java.util.List;
 
 public class MinMaxBot1 extends CompetitorBot {
 
-    private static final int MAX_DEPTH = 6;
+    private static final int MAX_DEPTH = 9;
 
-    public static int count;
+    public static int nodes;
+    public static int coup;
+    public static int depth;
+    public static int depthMAx = 0;
+
+    public static int budget = 36;
 
     ArrayList<String> s = new ArrayList<>();
 
     public MinMaxBot1() throws InvalidBotException {
         this.setBotName("MinMaxMaxence");
         this.addAuthor("Maxence Schoirfer");
-        count = 0;
+        nodes = 0;
+        coup = 0;
     }
 
     @Override
@@ -33,11 +39,13 @@ public class MinMaxBot1 extends CompetitorBot {
 
     @Override
     public double[] getDecision(Board board) {
-        String stringBuilder = "Coup : " + count + "\n" +
+        String stringBuilder = "Coup : " + nodes + "\n" +
                 "joueur : " + board.getCurrentPlayer() + "\n" + board.toString() + "\nScore joueur 0 : " + board.getScore(0) +
                 "\nScore joueur 1 : " + board.getScore(1) + "\n";
-        s.add(stringBuilder);
-        MinMaxBot1.count++;
+        s.add("coup " + coup + " : \n" + "Nodes: " + nodes +  ", Depth : " + depthMAx + ", Budget : " + budget + "\n");
+        MinMaxBot1.nodes = 0;
+        MinMaxBot1.coup++;
+        MinMaxBot1.budget = 34000;
         MinMaxNode1.initialize(board, MAX_DEPTH);
         return new MaxNode1(board).getDecision();
     }
@@ -45,7 +53,8 @@ public class MinMaxBot1 extends CompetitorBot {
     @Override
     public void finish() {
 
-        s.add(String.valueOf( MinMaxBot1.count++));
+        //s.add(String.valueOf( MinMaxBot1.count++));
+   //     s.add("coup " + coup + " : \n" + "Nodes : " + nodes +  ", Depth : " + depth + "\n");
         ecrireFichier("trace.txt",s);
     }
 
