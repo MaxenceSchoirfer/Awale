@@ -14,7 +14,7 @@ public class MinMaxBot1 extends CompetitorBot {
 
     protected static final int MAX_DEPTH = 9;
 
-    public static HashMap<String,Double> categorie;
+    public static HashMap<String,Integer> categorie;
 
     public static int nodes;
     public static int coup;

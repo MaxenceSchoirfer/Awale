@@ -4,13 +4,23 @@ import awele.core.Board;
 
 public class MaxNode1 extends MinMaxNode1
 {
+
+    MaxNode1(Board board)
+    {
+        this (board, 0, -Double.MAX_VALUE, Double.MAX_VALUE,false);
+    }
+
     /**
      * Constructeur pour un noeud initial
      * @param board La situation de jeu pour laquelle il faut prendre une décision
+     * @param depth
+     * @param alpha
+     * @param beta
+     * @param b
      */
-    MaxNode1(Board board)
+    MaxNode1(Board board, int depth, double alpha, double beta, boolean b)
     {
-        this (board, 0, -Double.MAX_VALUE, Double.MAX_VALUE);
+        super (board, 0, -Double.MAX_VALUE, Double.MAX_VALUE,b);
     }
 
     /**
@@ -19,10 +29,12 @@ public class MaxNode1 extends MinMaxNode1
      * @param depth La profondeur du noeud
      * @param alphabeta Le seuil pour la coupe alpha-beta
      */
-    MaxNode1(Board board, int depth, double alpha, double beta)
-    {
-        super (board, depth, alpha, beta);
-    }
+//    MaxNode1(Board board, int depth, double alpha, double beta, boolean b)
+//    {
+//        super (board, depth, alpha, beta,b);
+//    }
+
+
 
     /**
      * Retourne le max
@@ -56,12 +68,13 @@ public class MaxNode1 extends MinMaxNode1
      * @param depth La profondeur du noeud
      * @param alpha Le seuil pour la coupe alpha
      * @param beta Le seuil pour la coupe beta
+     * @param b
      * @return Un noeud MinNode du niveau suivant
      */
     @Override
-    protected MinNode1 getNextNode (Board board, int depth, double alpha, double beta)
+    protected MinNode1 getNextNode(Board board, int depth, double alpha, double beta, boolean b)
     {
-        return new MinNode1(board, depth, alpha, beta);
+        return new MinNode1(board, depth, alpha, beta,b);
     }
 
     /**
