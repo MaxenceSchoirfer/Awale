@@ -1,23 +1,29 @@
 package awele.bot.maxence;
 
 import awele.bot.CompetitorBot;
+import awele.bot.minmax.MinMaxBot;
 import awele.core.Board;
 import awele.core.InvalidBotException;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MinMaxBot1 extends CompetitorBot {
 
-    private static final int MAX_DEPTH = 9;
+    protected static final int MAX_DEPTH = 9;
+
+    public static HashMap<String,Double> categorie;
 
     public static int nodes;
     public static int coup;
     public static int depth;
     public static int depthMAx = 0;
 
-    public static int budget = 36;
+    public static int[] lastMoves;
+
+    public static int budget = 0;
 
     ArrayList<String> s = new ArrayList<>();
 
@@ -26,6 +32,8 @@ public class MinMaxBot1 extends CompetitorBot {
         this.addAuthor("Maxence Schoirfer");
         nodes = 0;
         coup = 0;
+        lastMoves = new int[100];
+        categorie = new HashMap<>();
     }
 
     @Override
@@ -52,9 +60,11 @@ public class MinMaxBot1 extends CompetitorBot {
 
     @Override
     public void finish() {
-
-        //s.add(String.valueOf( MinMaxBot1.count++));
-   //     s.add("coup " + coup + " : \n" + "Nodes : " + nodes +  ", Depth : " + depth + "\n");
+        s.add("-------------------------------- NOUVELLE PARTIE ---------------------------------");
+        lastMoves = new int[100];
+        MinMaxBot1.nodes = 0;
+        MinMaxBot1.coup = 0;
+        MinMaxBot1.budget = 34000;
         ecrireFichier("trace.txt",s);
     }
 

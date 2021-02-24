@@ -29,7 +29,7 @@ public final class Main extends OutputWriter
     
     private static final String LOG_FILE = "awele.log";
     private static final String ANONYMOUS_LOG_FILE = "awele.anonymous.log";
-    private static final int NB_RUNS = 1;
+    private static final int NB_RUNS = 5;
     //private static final int NB_RUNS = 1;
     private static final int MAX_LEARNING_TIME = 1000 * 60 * 60 * 1; // 1 h
     private static final int MAX_DECISION_TIME = 200; // 100 ms
@@ -160,7 +160,7 @@ public final class Main extends OutputWriter
                     else
                     {
                         Awele awele = new Awele (bot, random);
-                        awele.play ();
+                     //   awele.play ();
                         long decisionTime = (long) ((2 * awele.getRunningTime ()) / awele.getNbMoves ()) - randomAverageDecisionTime;
                         this.print ("Durée d'une prise de décision : " + Main.formatDuration (decisionTime));
                         if (decisionTime > Main.MAX_DECISION_TIME)
