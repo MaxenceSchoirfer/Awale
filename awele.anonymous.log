@@ -9,25 +9,3 @@ Classe : awele.bot.maxence.MinMaxBot1
 Instanciation du bot "MinMaxMaxence"
 Nom du bot : MinMaxMaxence
 Temps d'apprentissage : 00:00:00.000
-Durée d'une prise de décision : 00:00:00.000
-Usage mémoire : 0 B
-Usage mémoire maximum : 587.7 KiB
-
-Bot 2/2
-Classe : awele.bot.minmax.MinMaxBot
-Instanciation du bot "MinMax"
-Nom du bot : MinMax
-Temps d'apprentissage : 00:00:00.000
-Durée d'une prise de décision : 00:00:00.000
-Usage mémoire : 352 B
-Usage mémoire maximum : 328.6 KiB
-
-2 bots ont été instanciés
-Durée du chargement : 00:00:00.140
-Mémoire utilisée : 3.5 MiB
-
-Que le championnat commence !
-
-Affrontement 1/1
-MinMaxMaxence vs. MinMax
-

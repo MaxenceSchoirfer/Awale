@@ -12,7 +12,7 @@ import java.util.List;
 
 public class MinMaxBot1 extends CompetitorBot {
 
-    protected static final int MAX_DEPTH = 9;
+    protected static final int MAX_DEPTH = 2;
 
     public static HashMap<String,Integer> categorie;
 

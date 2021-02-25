@@ -3,7 +3,10 @@ package awele.bot.maxence;
 import awele.core.Board;
 import awele.core.InvalidBotException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public abstract class MinMaxNode1 {
@@ -14,9 +17,8 @@ public abstract class MinMaxNode1 {
     private double evaluation;
 
     private Board board;
-    private int depth;
-    private double alpha;
-    private double beta;
+    private int score;
+    private int index;
 
 
     private double[] decision;
@@ -30,73 +32,130 @@ public abstract class MinMaxNode1 {
      * @param alpha Le seuil pour la coupe alpha
      * @param beta  Le seuil pour la coupe beta
      */
-    public MinMaxNode1(Board board, int depth, double alpha, double beta, boolean depth1) {
+    public MinMaxNode1(Board board, int depth, double alpha, double beta, boolean viensDeTriFils) {
         this.board = board;
-        this.depth = depth;
-        this.alpha = alpha;
-        this.beta = beta;
+
+        if (!viensDeTriFils){
+            if (MinMaxBot1.depthMAx < depth) MinMaxBot1.depthMAx = depth;
+            MinMaxBot1.depth = depth;
+            MinMaxBot1.nodes++;
+            MinMaxBot1.budget--;
+
+            this.decision = new double[Board.NB_HOLES];
+            this.evaluation = this.worst();
+            ArrayList<MinMaxNode1> sortedFils = TriFils(this, getFils(this, depth, alpha, beta));
+            for (MinMaxNode1 fils: sortedFils) {
+                if (isTerminalNode(fils.board, fils.score) || depth >= MinMaxBot1.MAX_DEPTH) {
+                    this.decision[fils.index] = this.diffScore(fils.board);
+                } else {
+                    MinMaxNode1 child = this.getNextNode(fils.board, depth + 1, alpha, beta, false);
+                    this.decision[fils.index] = child.getEvaluation();
+                }
+
+                this.evaluation = this.minmax(this.decision[fils.index], this.evaluation);
+
+                if (depth > 0) {
+                    if (this.alphabeta(this.evaluation, alpha, beta)) {
+                        break;
+                    }
+                    alpha = this.alpha(this.evaluation, alpha);
+                    beta = this.beta(this.evaluation, beta);
+                }
+
+            }
+        }
 
 
-        if (!depth1) getFils(this);
 
-        if (MinMaxBot1.depthMAx < depth) MinMaxBot1.depthMAx = depth;
-        MinMaxBot1.depth = depth;
-        MinMaxBot1.nodes++;
-        MinMaxBot1.budget--;
-        // MinMaxBot1.budget = MinMaxBot1.budget /6;
+//        for (int i = 0; i < Board.NB_HOLES; i++)
+//            if (board.getPlayerHoles()[i] != 0) {
+//                double[] decision = new double[Board.NB_HOLES];
+//                decision[i] = 1;
+//                Board copy = (Board) board.clone();
+//                try {
+//                    int score = copy.playMoveSimulationScore(copy.getCurrentPlayer(), decision);
+//                    copy = copy.playMoveSimulationBoard(copy.getCurrentPlayer(), decision);
+//
+//                    if (isTerminalNode(copy, score) || depth >= MinMaxBot1.MAX_DEPTH) {
+//                        this.decision[i] = this.diffScore(copy);
+//                    } else {
+//                        MinMaxNode1 child = this.getNextNode(copy, depth, alpha, beta);
+//                        this.decision[i] = child.getEvaluation();
+//                    }
+//
+//
+//                    this.evaluation = this.minmax(this.decision[i], this.evaluation);
+//                    /* Coupe alpha-beta */
+//                    if (depth > 0) {
+//                        if (this.alphabeta(this.evaluation, alpha, beta)) {
+//                            break;
+//                        }
+//                        alpha = this.alpha(this.evaluation, alpha);
+//                        beta = this.beta(this.evaluation, beta);
+//                    }
+//                } catch (InvalidBotException e) {
+//                    this.decision[i] = 0;
+//                }
+//            }
+    }
 
 
-        /* On crée un tableau des évaluations des coups à jouer pour chaque situation possible */
+    boolean isTerminalNode(Board board, int score) {
+        return ((score < 0) ||
+                (board.getScore(Board.otherPlayer(board.getCurrentPlayer())) >= 25) ||
+                (board.getNbSeeds() <= 6));
+    }
+
+    private ArrayList<MinMaxNode1> getFils(MinMaxNode1 node, int depth, double alpha, double beta) {
+        ArrayList<MinMaxNode1> fils = new ArrayList<>();
         this.decision = new double[Board.NB_HOLES];
-        /* Initialisation de l'évaluation courante */
-        this.evaluation = this.worst();
-        /* On parcourt toutes les coups possibles */
         for (int i = 0; i < Board.NB_HOLES; i++)
-            /* Si le coup est jouable */
             if (board.getPlayerHoles()[i] != 0) {
-                /* Sélection du coup à jouer */
                 double[] decision = new double[Board.NB_HOLES];
                 decision[i] = 1;
-                /* On copie la grille de jeu et on joue le coup sur la copie */
                 Board copy = (Board) board.clone();
                 try {
                     int score = copy.playMoveSimulationScore(copy.getCurrentPlayer(), decision);
                     copy = copy.playMoveSimulationBoard(copy.getCurrentPlayer(), decision);
-                    /* Si la nouvelle situation de jeu est un coup qui met fin à la partie,
-                       on évalue la situation actuelle */
-                    if ((score < 0) ||
-                            (copy.getScore(Board.otherPlayer(copy.getCurrentPlayer())) >= 25) ||
-                            (copy.getNbSeeds() <= 6))
-                        this.decision[i] = this.diffScore(copy);
-                        /* Sinon, on explore les coups suivants */
-                    else {
-                        /* Si la profondeur maximale n'est pas atteinte */
-                        if (depth < MinMaxBot1.MAX_DEPTH && !depth1) {
-                            /* On construit le noeud suivant */
-                            MinMaxNode1 child = this.getNextNode(copy, depth + 1, alpha, beta, true);
-
-                            /* On récupère l'évaluation du noeud fils */
-                            this.decision[i] = child.getEvaluation();
-                        }
-                        /* Sinon (si la profondeur maximale est atteinte), on évalue la situation actuelle */
-                        else
-                            this.decision[i] = this.diffScore(copy);
-                    }
-                    /* L'évaluation courante du noeud est mise à jour, selon le type de noeud (MinNode ou MaxNode) */
-                    this.evaluation = this.minmax(this.decision[i], this.evaluation);
-                    /* Coupe alpha-beta */
-                    if (depth > 0) {
-                        if (this.alphabeta(this.evaluation, alpha, beta)) {
-                            break;
-                        }
-                        alpha = this.alpha(this.evaluation, alpha);
-                        beta = this.beta(this.evaluation, beta);
-                    }
+                    MinMaxNode1 f = this.getNextNode(copy, depth + 1, alpha, beta, true);
+                    f.score = score;
+                    f.index = i;
+                    fils.add(f);
                 } catch (InvalidBotException e) {
-                    this.decision[i] = 0;
+                    e.printStackTrace();
                 }
             }
+        return fils;
     }
+
+    private ArrayList<MinMaxNode1> TriFils(MinMaxNode1 parent, ArrayList<MinMaxNode1> fils) {
+        HashMap<MinMaxNode1, Integer> scores = new HashMap<>();
+
+        for (MinMaxNode1 f : fils) {
+            String cat = f.getCategorie(parent, f);
+            int value = 0;
+            if (MinMaxBot1.categorie.containsKey(cat)) value = MinMaxBot1.categorie.get(cat);
+            scores.put(f, value);
+        }
+
+        Map<MinMaxNode1, Integer> sortedMap = scores.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (a, b) -> {
+                            throw new AssertionError();
+                        },
+                        LinkedHashMap::new
+                ));
+        return new ArrayList<>(sortedMap.keySet());
+    }
+
+
+
+
+//-+------------------------------------------------------------------------------------------------------------
+
 
     boolean estTermine(Board board, int score, int depth) {
         return ((score < 0) ||
@@ -141,10 +200,10 @@ public abstract class MinMaxNode1 {
                 double res = alphaBetaTriCoup(f, alpha, beta, false, depth + 1, board, score);
                 if (res > value) {
                     value = res;
-                    updateScore(getCategorie(node, f), i);
+                    //updateScore(getCategorie(node, f), i);
                     for (int j = 0; j < i; j++) {
                         MinMaxNode1 fPrime = fils.get(j);
-                        updateScore(getCategorie(node, fPrime), -1);
+                    //    updateScore(getCategorie(node, fPrime), -1);
                     }
                     return value;
                 }
@@ -159,59 +218,16 @@ public abstract class MinMaxNode1 {
         return value;
     }
 
-
-    private ArrayList<MinMaxNode1> getFils(MinMaxNode1 node) {
-        ArrayList<MinMaxNode1> fils = new ArrayList<>();
-        this.decision = new double[Board.NB_HOLES];
-        /* On parcourt toutes les coups possibles */
-        for (int i = 0; i < Board.NB_HOLES; i++)
-            /* Si le coup est jouable */
-            if (board.getPlayerHoles()[i] != 0) {
-                /* Sélection du coup à jouer */
-                double[] decision = new double[Board.NB_HOLES];
-                decision[i] = 1;
-                /* On copie la grille de jeu et on joue le coup sur la copie */
-                Board copy = (Board) board.clone();
-                try {
-                    int score = copy.playMoveSimulationScore(copy.getCurrentPlayer(), decision);
-                    copy = copy.playMoveSimulationBoard(copy.getCurrentPlayer(), decision);
-                    fils.add(this.getNextNode(copy, node.depth + 1, alpha, beta, true));
-                } catch (InvalidBotException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        return fils;
-    }
-
     private ArrayList<MinMaxNode1> TriFils(MinMaxNode1 node) {
-        ArrayList<MinMaxNode1> fils = getFils(node);
-        HashMap<MinMaxNode1,Integer> scores = new HashMap<>();
+        //ArrayList<MinMaxNode1> fils = fils du node ;
+        //  for (MinMaxNode1 f: fils) {
+        //    int score =  scoreMinMaxBot1.categorie.get(getCategorie(node,f));
+        //  }
 
-        for (MinMaxNode1 f : fils) {
-            scores.put(f,MinMaxBot1.categorie.get(getCategorie(node, f)));
-        }
-
-        Map<MinMaxNode1,Integer> sortedMap = scores.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue())
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (a, b) -> { throw new AssertionError(); },
-                        LinkedHashMap::new
-                ));
-        return new ArrayList<>(sortedMap.keySet());
+        return null;
     }
 
-    private void updateScore(String categorie, int i) {
-        if (MinMaxBot1.categorie.containsKey(categorie)) {
-            int value = MinMaxBot1.categorie.get(categorie);
-            MinMaxBot1.categorie.replace(categorie, value + i);
-        } else {
-            MinMaxBot1.categorie.put(categorie, i);
-        }
 
-    }
 
 
     /**
@@ -275,10 +291,9 @@ public abstract class MinMaxNode1 {
      * @param depth La profondeur du noeud
      * @param alpha Le seuil pour la coupe alpha
      * @param beta  Le seuil pour la coupe beta
-     * @param b
      * @return Un noeud (MinNode ou MaxNode) du niveau suivant
      */
-    protected abstract MinMaxNode1 getNextNode(Board board, int depth, double alpha, double beta, boolean b);
+    protected abstract MinMaxNode1 getNextNode(Board board, int depth, double alpha, double beta, boolean viensDeTriFils );
 
     /**
      * L'évaluation du noeud

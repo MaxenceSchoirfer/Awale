@@ -10,7 +10,7 @@ public class MinNode1 extends MinMaxNode1
      */
     MinNode1(Board board)
     {
-        this (board, 0, -Double.MAX_VALUE, Double.MAX_VALUE,false);
+        this (board, 0, -Double.MAX_VALUE, Double.MAX_VALUE, false);
     }
 
     /**
@@ -19,11 +19,10 @@ public class MinNode1 extends MinMaxNode1
      * @param depth La profondeur du noeud
      * @param alpha Le seuil pour la coupe alpha
      * @param beta Le seuil pour la coupe beta
-     * @param b
      */
-    MinNode1(Board board, int depth, double alpha, double beta, boolean b)
+    MinNode1(Board board, int depth, double alpha, double beta, boolean viensDeTriFils)
     {
-        super (board, depth, alpha, beta,b);
+        super (board, depth, alpha, beta, viensDeTriFils);
     }
 
     /**
@@ -58,13 +57,12 @@ public class MinNode1 extends MinMaxNode1
      * @param depth La profondeur du noeud
      * @param alpha Le seuil pour la coupe alpha
      * @param beta Le seuil pour la coupe beta
-     * @param b
      * @return Un noeud MaxNode du niveau suivant
      */
     @Override
-    protected MaxNode1 getNextNode(Board board, int depth, double alpha, double beta, boolean b)
+    protected MaxNode1 getNextNode (Board board, int depth, double alpha, double beta, boolean viensDeTriFils)
     {
-        return new MaxNode1(board, depth, alpha, beta,b);
+        return new MaxNode1(board, depth, alpha, beta, viensDeTriFils);
     }
 
     /**
