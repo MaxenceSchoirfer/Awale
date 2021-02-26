@@ -9,10 +9,11 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MinMaxBot1 extends CompetitorBot {
 
-    protected static final int MAX_DEPTH = 2;
+    protected static final int MAX_DEPTH = 9;
 
     public static HashMap<String,Integer> categorie;
 
@@ -38,6 +39,19 @@ public class MinMaxBot1 extends CompetitorBot {
 
     @Override
     public void learn() {
+//        try {
+//            File f = new File("data.txt");
+//            BufferedReader b = new BufferedReader(new FileReader(f));
+//            String readLine = "";
+//            while ((readLine = b.readLine()) != null) {
+//                String[] parts = readLine.split("/");
+//                categorie.put(parts[0], Integer.valueOf(parts[1]));
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+
     }
 
     @Override
@@ -55,7 +69,10 @@ public class MinMaxBot1 extends CompetitorBot {
         MinMaxBot1.coup++;
         MinMaxBot1.budget = 34000;
         MinMaxNode1.initialize(board, MAX_DEPTH);
-        return new MaxNode1(board).getDecision();
+        double[] decision = MinMaxNode1.exploreNextNode(new MaxNode1(board,false
+        ),0,-Double.MAX_VALUE,Double.MAX_VALUE,false).getDecision();
+        return decision;
+       // return new MaxNode1(board).getDecision();
     }
 
     @Override
@@ -66,6 +83,12 @@ public class MinMaxBot1 extends CompetitorBot {
         MinMaxBot1.coup = 0;
         MinMaxBot1.budget = 34000;
         ecrireFichier("trace.txt",s);
+
+        ArrayList<String> cat = new ArrayList<>();
+        for(Map.Entry<String, Integer> entry : categorie.entrySet()){
+            cat.add(entry.getKey()+"/"+entry.getValue());
+        }
+      //  if (cat.size()>0)ecrireFichier("data.txt",cat);
     }
 
 

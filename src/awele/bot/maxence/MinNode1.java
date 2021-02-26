@@ -25,6 +25,16 @@ public class MinNode1 extends MinMaxNode1
         super (board, depth, alpha, beta, viensDeTriFils);
     }
 
+
+    /**
+     * Constructeur d'un noeud utilisé pour le tri avant le parcours
+     * @param board
+     * @param viensDeFils
+     */
+    public MinNode1(Board board, boolean viensDeFils) {
+        super(board, viensDeFils);
+    }
+
     /**
      * Retourne le min
      * @param eval1 Un double
@@ -63,6 +73,16 @@ public class MinNode1 extends MinMaxNode1
     protected MaxNode1 getNextNode (Board board, int depth, double alpha, double beta, boolean viensDeTriFils)
     {
         return new MaxNode1(board, depth, alpha, beta, viensDeTriFils);
+    }
+
+    @Override
+    protected MinNode1 getCurrentNode(Board board, boolean b) {
+        return new MinNode1(board,false);
+    }
+
+    @Override
+    protected MaxNode1 getNextNode(Board board, boolean viensDeFils) {
+        return new MaxNode1(board,viensDeFils);
     }
 
     /**
