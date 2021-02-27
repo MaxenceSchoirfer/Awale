@@ -3,12 +3,6 @@ package awele.bot.maxence;
 import awele.core.Board;
 import awele.core.InvalidBotException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 public abstract class MinMaxNode1 {
 
     private static int player;
@@ -19,10 +13,14 @@ public abstract class MinMaxNode1 {
     private int score;
     private int index;
 
+    private int numberChildren;
+
     public MinMaxNode1(Board board) {
+        MinMaxNode1.player = board.getCurrentPlayer();
         this.board = board;
         this.decision = new double[Board.NB_HOLES];
         this.evaluation = this.worst();
+        this.numberChildren = 0;
     }
 
     protected static MinMaxNode1 exploreNextNode(MinMaxNode1 node, int depth, double alpha, double beta) {
@@ -30,24 +28,25 @@ public abstract class MinMaxNode1 {
         MinMaxBot1.exploredNodes++;
         MinMaxBot1.explorationBudget--;
 
-        ArrayList<MinMaxNode1> sortedChildren = sortChildrenByScore(node, getChildren(node));
-        for (int i = 0; i < sortedChildren.size(); i++) {
-            MinMaxNode1 child = sortedChildren.get(i);
-            if (isTerminalNode(child.board, child.score) || depth >= MinMaxBot1.MAX_DEPTH) {
-                node.decision[child.index] = diffScore(child.board);
+        MinMaxNode1[] sortedChildren = sortChildrenByScore(node, getChildren(node));
+
+        for (int i = 0; i < sortedChildren.length; i++) {
+            if (sortedChildren[i] == null)continue;
+            if (isTerminalNode(sortedChildren[i].board, sortedChildren[i].score) || depth >= MinMaxBot1.MAX_DEPTH) {
+                node.decision[sortedChildren[i].index] = diffScore(sortedChildren[i].board);
             } else {
-                exploreNextNode(child, depth + 1, alpha, beta);
-                node.decision[child.index] = child.getEvaluation();
+                exploreNextNode(sortedChildren[i], depth + 1, alpha, beta);
+                node.decision[sortedChildren[i].index] = sortedChildren[i].getEvaluation();
             }
 
-            if (node.minmax(node.decision[child.index], node.evaluation) != node.evaluation) {
-                node.evaluation = node.minmax(node.decision[child.index], node.evaluation);
-                updateCategoryScore(node, sortedChildren, i, child);
+            if (node.minmax(node.decision[sortedChildren[i].index], node.evaluation) != node.evaluation) {
+                node.evaluation = node.minmax(node.decision[sortedChildren[i].index], node.evaluation);
+                updateCategoryScore(node, sortedChildren, i, sortedChildren[i]);
             }
 
             if (depth > 0) {
                 if (node.alphabeta(node.evaluation, alpha, beta)) {
-                    updateCategoryScore(node, sortedChildren, i, child);
+                    updateCategoryScore(node, sortedChildren, i, sortedChildren[i]);
                     break;
                 }
                 alpha = node.alpha(node.evaluation, alpha);
@@ -58,21 +57,16 @@ public abstract class MinMaxNode1 {
         return node;
     }
 
-    private static void updateCategoryScore(MinMaxNode1 node, ArrayList<MinMaxNode1> sortedChildren, int i, MinMaxNode1 child) {
+    private static void updateCategoryScore(MinMaxNode1 node, MinMaxNode1[] sortedChildren, int i, MinMaxNode1 child) {
         updateScore(getCategory(node, child), i);
         for (int j = 0; j < i; j++) {
-            MinMaxNode1 predecessorChild = sortedChildren.get(j);
-            updateScore(getCategory(node, predecessorChild), -1);
+            if (sortedChildren[j] == null)continue;
+            updateScore(getCategory(node, sortedChildren[j]), -1);
         }
     }
 
-    private static void updateScore(String category, int i) {
-        if (MinMaxBot1.categories.containsKey(category)) {
-            int value = MinMaxBot1.categories.get(category);
-            MinMaxBot1.categories.replace(category, value + i);
-        } else {
-            MinMaxBot1.categories.put(category, i);
-        }
+    private static void updateScore(int category, int i) {
+        MinMaxBot1.categories[category] += i;
     }
 
     private static boolean isTerminalNode(Board board, int score) {
@@ -81,21 +75,21 @@ public abstract class MinMaxNode1 {
                 (board.getNbSeeds() <= 6));
     }
 
-    private static ArrayList<MinMaxNode1> getChildren(MinMaxNode1 parent) {
-        ArrayList<MinMaxNode1> children = new ArrayList<>();
+    private static MinMaxNode1[] getChildren(MinMaxNode1 parent) {
+        MinMaxNode1[] children = new MinMaxNode1[6];
         parent.decision = new double[Board.NB_HOLES];
         for (int i = 0; i < Board.NB_HOLES; i++)
             if (parent.board.getPlayerHoles()[i] != 0) {
                 double[] decision = new double[Board.NB_HOLES];
                 decision[i] = 1;
                 Board copy = (Board) parent.board.clone();
+                parent.numberChildren++;
                 try {
                     int score = copy.playMoveSimulationScore(copy.getCurrentPlayer(), decision);
                     copy = copy.playMoveSimulationBoard(copy.getCurrentPlayer(), decision);
-                    MinMaxNode1 child = parent.getNextNode(copy);
-                    child.score = score;
-                    child.index = i;
-                    children.add(child);
+                    children[i] = parent.getNextNode(copy);
+                    children[i].score = score;
+                    children[i].index = i;
                 } catch (InvalidBotException e) {
                     e.printStackTrace();
                 }
@@ -103,30 +97,24 @@ public abstract class MinMaxNode1 {
         return children;
     }
 
-    private static ArrayList<MinMaxNode1> sortChildrenByScore(MinMaxNode1 parent, ArrayList<MinMaxNode1> children) {
-        HashMap<MinMaxNode1, Integer> scores = new HashMap<>();
-
-        for (MinMaxNode1 child : children) {
-            String cat = getCategory(parent, child);
-            int value = 0;
-            if (MinMaxBot1.categories.containsKey(cat)) value = MinMaxBot1.categories.get(cat);
-            scores.put(child, value);
+    private static MinMaxNode1[] sortChildrenByScore(MinMaxNode1 parent, MinMaxNode1[] children) {
+        for (int i = children.length -1; i < 1; i++) {
+            for (int j = 0; j < i - 1; j++) {
+                int catJ1 = getCategory(parent, children[j+1]);
+                int valueJ1 = MinMaxBot1.categories[catJ1];
+                int catJ = getCategory(parent, children[j]);
+                int valueJ = MinMaxBot1.categories[catJ];
+                if (valueJ1 < valueJ){
+                    MinMaxNode1 temp = children[j+1];
+                    children[j+1] = children[j];
+                    children[j] = temp;
+                }
+            }
         }
-
-        Map<MinMaxNode1, Integer> sortedMap = scores.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue())
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (a, b) -> {
-                            throw new AssertionError();
-                        },
-                        LinkedHashMap::new
-                ));
-        return new ArrayList<>(sortedMap.keySet());
+        return children;
     }
 
-    private static String getCategory(MinMaxNode1 parent, MinMaxNode1 child) {
+    private static int getCategory(MinMaxNode1 parent, MinMaxNode1 child) {
         int[][] lastState = new int[2][Board.NB_HOLES];
         int[][] currentState = new int[2][Board.NB_HOLES];
 
@@ -163,11 +151,11 @@ public abstract class MinMaxNode1 {
                         }
 
                     }
-                    return String.valueOf(j + 6 * lastState[i][j] + 6 * 48 * currentState[i1][j1]);
+                    return (j + 6 * lastState[i][j] + 6 * 48 * currentState[i1][j1]);
                 }
             }
         }
-        return null;
+        return -1;
     }
 
     /**
@@ -175,13 +163,6 @@ public abstract class MinMaxNode1 {
      */
     protected abstract double worst();
 
-    /**
-     * Initialisation
-     */
-    protected static void initialize(Board board) {
-        //to-do utile de le faire ici ???
-        MinMaxNode1.player = board.getCurrentPlayer();
-    }
 
     private static int diffScore(Board board) {
         return board.getScore(MinMaxNode1.player) - board.getScore(Board.otherPlayer(MinMaxNode1.player));

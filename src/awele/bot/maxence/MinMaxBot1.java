@@ -21,7 +21,7 @@ public class MinMaxBot1 extends CompetitorBot {
     public static int depthReached;
     public static int explorationBudget;
 
-    public static HashMap<String, Integer> categories;
+    public static int[] categories;
 
     ArrayList<String> traces = new ArrayList<>();
     ArrayList<String> average = new ArrayList<>();
@@ -34,62 +34,68 @@ public class MinMaxBot1 extends CompetitorBot {
         playedMoves = 0;
         depthReached = 0;
         explorationBudget = BUDGET;
-        categories = new HashMap<>();
     }
 
     @Override
     public void learn() {
         initCategories();
+
     }
 
     @Override
     public void initialize() {
-       // traces.add("---------- New Game ----------");
+      //   traces.add("---------- New Game ----------");
     }
 
     @Override
     public double[] getDecision(Board board) {
-   //     System.out.println("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
-   //     traces.add("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
+        //     System.out.println("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
+        traces.add("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
         totalExploredNodes += exploredNodes;
+       // if (exploredNodes > 75000) System.out.println("EXPLORED NODES : " + exploredNodes);
         exploredNodes = 0;
         explorationBudget = BUDGET;
         playedMoves++;
-        MinMaxNode1.initialize(board);
         return MinMaxNode1.exploreNextNode(new MaxNode1(board), 0, -Double.MAX_VALUE, Double.MAX_VALUE).getDecision();
     }
 
     @Override
     public void finish() {
-     //   System.out.println("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
-     //   traces.add("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
-      //  traces.add("-------------------------------- END ---------------------------------");
-      //  average.add("Moyenne de noeuds explorés : " + totalExploredNodes/playedMoves);
+        //   System.out.println("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
+     //      traces.add("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
+     //     traces.add("-------------------------------- END ---------------------------------");
+          average.add("Moyenne de noeuds explorés : " + totalExploredNodes/playedMoves);
 
         MinMaxBot1.totalExploredNodes = 0;
         MinMaxBot1.exploredNodes = 0;
         MinMaxBot1.playedMoves = 0;
         MinMaxBot1.explorationBudget = BUDGET;
-      //  writeFile("trace.txt", traces);
-       // writeFile("average.txt", average);
-      //  saveCategories();
+     //     writeFile("trace.txt", traces);
+         writeFile("average.txt", average);
+          saveCategories();
     }
 
     private void saveCategories() {
-        for (Map.Entry<String, Integer> entry : categories.entrySet()) {
-            categoriesStrings.add(entry.getKey() + "/" + entry.getValue());
+        for (int i = 0; i < categories.length; i++) {
+            //if( categories[i] != 0 )
+                categoriesStrings.add(i + "/" + categories[i]);
         }
+//        for (Map.Entry<String, Integer> entry : categories.entrySet()) {
+//            categoriesStrings.add(entry.getKey() + "/" + entry.getValue());
+//        }
         if (categoriesStrings.size() > 0) writeFile("data.txt", categoriesStrings);
     }
 
     private void initCategories() {
+        categories = new int[10000];
         try {
             File f = new File("data.txt");
             BufferedReader b = new BufferedReader(new FileReader(f));
             String readLine;
             while ((readLine = b.readLine()) != null) {
                 String[] parts = readLine.split("/");
-                categories.put(parts[0], Integer.valueOf(parts[1]));
+                categories[Integer.parseInt(parts[0])] = Integer.parseInt(parts[1]);
+                //categories.put(parts[0], Integer.valueOf(parts[1]));
             }
         } catch (IOException e) {
             e.printStackTrace();
