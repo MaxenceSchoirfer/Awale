@@ -1,7 +1,6 @@
 package awele.bot.maxence;
 
 import awele.bot.CompetitorBot;
-import awele.bot.minmax.MinMaxBot;
 import awele.core.Board;
 import awele.core.InvalidBotException;
 
@@ -14,101 +13,99 @@ import java.util.Map;
 public class MinMaxBot1 extends CompetitorBot {
 
     protected static final int MAX_DEPTH = 9;
+    protected static final int BUDGET = 100000;
 
-    public static HashMap<String,Integer> categorie;
+    public static int exploredNodes;
+    public static int totalExploredNodes;
+    public static int playedMoves;
+    public static int depthReached;
+    public static int explorationBudget;
 
-    public static int nodes;
-    public static int coup;
-    public static int depth;
-    public static int depthMAx = 0;
+    public static HashMap<String, Integer> categories;
 
-    public static int[] lastMoves;
-
-    public static int budget = 0;
-
-    ArrayList<String> s = new ArrayList<>();
+    ArrayList<String> traces = new ArrayList<>();
+    ArrayList<String> average = new ArrayList<>();
+    ArrayList<String> categoriesStrings = new ArrayList<>();
 
     public MinMaxBot1() throws InvalidBotException {
         this.setBotName("MinMaxMaxence");
         this.addAuthor("Maxence Schoirfer");
-        nodes = 0;
-        coup = 0;
-        lastMoves = new int[100];
-        categorie = new HashMap<>();
+        exploredNodes = 0;
+        playedMoves = 0;
+        depthReached = 0;
+        explorationBudget = BUDGET;
+        categories = new HashMap<>();
     }
 
     @Override
     public void learn() {
-//        try {
-//            File f = new File("data.txt");
-//            BufferedReader b = new BufferedReader(new FileReader(f));
-//            String readLine = "";
-//            while ((readLine = b.readLine()) != null) {
-//                String[] parts = readLine.split("/");
-//                categorie.put(parts[0], Integer.valueOf(parts[1]));
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-
+        initCategories();
     }
 
     @Override
     public void initialize() {
+       // traces.add("---------- New Game ----------");
     }
-
 
     @Override
     public double[] getDecision(Board board) {
-        String stringBuilder = "Coup : " + nodes + "\n" +
-                "joueur : " + board.getCurrentPlayer() + "\n" + board.toString() + "\nScore joueur 0 : " + board.getScore(0) +
-                "\nScore joueur 1 : " + board.getScore(1) + "\n";
-        s.add("coup " + coup + " : \n" + "Nodes: " + nodes +  ", Depth : " + depthMAx + ", Budget : " + budget + "\n");
-        MinMaxBot1.nodes = 0;
-        MinMaxBot1.coup++;
-        MinMaxBot1.budget = 34000;
-        MinMaxNode1.initialize(board, MAX_DEPTH);
-        double[] decision = MinMaxNode1.exploreNextNode(new MaxNode1(board,false
-        ),0,-Double.MAX_VALUE,Double.MAX_VALUE,false).getDecision();
-        return decision;
-       // return new MaxNode1(board).getDecision();
+   //     System.out.println("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
+   //     traces.add("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
+        totalExploredNodes += exploredNodes;
+        exploredNodes = 0;
+        explorationBudget = BUDGET;
+        playedMoves++;
+        MinMaxNode1.initialize(board);
+        return MinMaxNode1.exploreNextNode(new MaxNode1(board), 0, -Double.MAX_VALUE, Double.MAX_VALUE).getDecision();
     }
 
     @Override
     public void finish() {
-        s.add("-------------------------------- NOUVELLE PARTIE ---------------------------------");
-        lastMoves = new int[100];
-        MinMaxBot1.nodes = 0;
-        MinMaxBot1.coup = 0;
-        MinMaxBot1.budget = 34000;
-        ecrireFichier("trace.txt",s);
+     //   System.out.println("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
+     //   traces.add("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
+      //  traces.add("-------------------------------- END ---------------------------------");
+      //  average.add("Moyenne de noeuds explorés : " + totalExploredNodes/playedMoves);
 
-        ArrayList<String> cat = new ArrayList<>();
-        for(Map.Entry<String, Integer> entry : categorie.entrySet()){
-            cat.add(entry.getKey()+"/"+entry.getValue());
-        }
-      //  if (cat.size()>0)ecrireFichier("data.txt",cat);
+        MinMaxBot1.totalExploredNodes = 0;
+        MinMaxBot1.exploredNodes = 0;
+        MinMaxBot1.playedMoves = 0;
+        MinMaxBot1.explorationBudget = BUDGET;
+      //  writeFile("trace.txt", traces);
+       // writeFile("average.txt", average);
+      //  saveCategories();
     }
 
-
-
-    public static void ecrireFichier(String nomFichier, List<String> lignes) {
-        Writer fluxSortie = null;
-        try {
-            fluxSortie = new PrintWriter(new BufferedWriter(new FileWriter(
-                    nomFichier)));
-            for (int i = 0; i < lignes.size() - 1; i++) {
-                fluxSortie.write(lignes.get(i) + "\n");
-            }
-            fluxSortie.write(lignes.get(lignes.size() - 1));
-        } catch (IOException exc) {
-            exc.printStackTrace();
+    private void saveCategories() {
+        for (Map.Entry<String, Integer> entry : categories.entrySet()) {
+            categoriesStrings.add(entry.getKey() + "/" + entry.getValue());
         }
+        if (categoriesStrings.size() > 0) writeFile("data.txt", categoriesStrings);
+    }
+
+    private void initCategories() {
         try {
-            fluxSortie.close();
+            File f = new File("data.txt");
+            BufferedReader b = new BufferedReader(new FileReader(f));
+            String readLine;
+            while ((readLine = b.readLine()) != null) {
+                String[] parts = readLine.split("/");
+                categories.put(parts[0], Integer.valueOf(parts[1]));
+            }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void writeFile(String name, List<String> lines) {
+        try {
+            Writer out = new PrintWriter(new BufferedWriter(new FileWriter(name)));
+            for (int i = 0; i < lines.size() - 1; i++) {
+                out.write(lines.get(i) + "\n");
+            }
+            out.write(lines.get(lines.size() - 1));
+            out.close();
+        } catch (IOException exc) {
+            exc.printStackTrace();
         }
     }
 }

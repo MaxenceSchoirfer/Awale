@@ -4,35 +4,8 @@ import awele.core.Board;
 
 public class MinNode1 extends MinMaxNode1
 {
-    /**
-     * Constructeur pour un noeud initial
-     * @param board La situation de jeu pour laquelle il faut prendre une décision
-     */
-    MinNode1(Board board)
-    {
-        this (board, 0, -Double.MAX_VALUE, Double.MAX_VALUE, false);
-    }
-
-    /**
-     * Constructeur d'un noeud interne
-     * @param board L'état de la grille de jeu
-     * @param depth La profondeur du noeud
-     * @param alpha Le seuil pour la coupe alpha
-     * @param beta Le seuil pour la coupe beta
-     */
-    MinNode1(Board board, int depth, double alpha, double beta, boolean viensDeTriFils)
-    {
-        super (board, depth, alpha, beta, viensDeTriFils);
-    }
-
-
-    /**
-     * Constructeur d'un noeud utilisé pour le tri avant le parcours
-     * @param board
-     * @param viensDeFils
-     */
-    public MinNode1(Board board, boolean viensDeFils) {
-        super(board, viensDeFils);
+    public MinNode1(Board board) {
+        super(board);
     }
 
     /**
@@ -61,28 +34,9 @@ public class MinNode1 extends MinMaxNode1
         return eval <= alpha;
     }
 
-    /**
-     * Retourne un noeud MaxNode du niveau suivant
-     * @param board L'état de la grille de jeu
-     * @param depth La profondeur du noeud
-     * @param alpha Le seuil pour la coupe alpha
-     * @param beta Le seuil pour la coupe beta
-     * @return Un noeud MaxNode du niveau suivant
-     */
     @Override
-    protected MaxNode1 getNextNode (Board board, int depth, double alpha, double beta, boolean viensDeTriFils)
-    {
-        return new MaxNode1(board, depth, alpha, beta, viensDeTriFils);
-    }
-
-    @Override
-    protected MinNode1 getCurrentNode(Board board, boolean b) {
-        return new MinNode1(board,false);
-    }
-
-    @Override
-    protected MaxNode1 getNextNode(Board board, boolean viensDeFils) {
-        return new MaxNode1(board,viensDeFils);
+    protected MaxNode1 getNextNode(Board board) {
+        return new MaxNode1(board);
     }
 
     /**

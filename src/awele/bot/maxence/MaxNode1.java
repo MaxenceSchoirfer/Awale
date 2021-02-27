@@ -4,28 +4,9 @@ import awele.core.Board;
 
 public class MaxNode1 extends MinMaxNode1
 {
-    /**
-     * Constructeur pour un noeud initial
-     * @param board La situation de jeu pour laquelle il faut prendre une décision
-     */
-    MaxNode1(Board board)
-    {
-        this (board, 0, -Double.MAX_VALUE, Double.MAX_VALUE, false);
-    }
 
-    /**
-     * Constructeur d'un noeud interne
-     * @param board La situation de jeu pour le noeud
-     * @param depth La profondeur du noeud
-
-     */
-    MaxNode1(Board board, int depth, double alpha, double beta, boolean viensDeTriFils)
-    {
-        super (board, depth, alpha, beta, viensDeTriFils);
-    }
-
-    public MaxNode1(Board board, boolean viensDeFils) {
-        super(board, viensDeFils);
+    public MaxNode1(Board board) {
+        super(board);
     }
 
     /**
@@ -54,28 +35,9 @@ public class MaxNode1 extends MinMaxNode1
         return eval >= beta;
     }
 
-    /**
-     * Retourne un noeud MinNode du niveau suivant
-     * @param board L'état de la grille de jeu
-     * @param depth La profondeur du noeud
-     * @param alpha Le seuil pour la coupe alpha
-     * @param beta Le seuil pour la coupe beta
-     * @return Un noeud MinNode du niveau suivant
-     */
     @Override
-    protected MinNode1 getNextNode (Board board, int depth, double alpha, double beta, boolean viensDeTriFils)
-    {
-        return new MinNode1(board, depth, alpha, beta, viensDeTriFils);
-    }
-
-    @Override
-    protected MinMaxNode1 getNextNode(Board board, boolean viensDeFils) {
-        return new MinNode1(board,viensDeFils);
-    }
-
-    @Override
-    protected MaxNode1 getCurrentNode(Board board, boolean b) {
-        return new MaxNode1(board,false);
+    protected MinMaxNode1 getNextNode(Board board) {
+        return new MinNode1(board);
     }
 
     /**
