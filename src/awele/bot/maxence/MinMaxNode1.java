@@ -14,6 +14,7 @@ public abstract class MinMaxNode1 {
     private int index;
 
     private int numberChildren;
+    protected int remainingBudget;
 
     public MinMaxNode1(Board board) {
         MinMaxNode1.player = board.getCurrentPlayer();
@@ -29,10 +30,13 @@ public abstract class MinMaxNode1 {
         MinMaxBot1.explorationBudget--;
 
         MinMaxNode1[] sortedChildren = sortChildrenByScore(node, getChildren(node));
-
         for (int i = 0; i < sortedChildren.length; i++) {
+
             if (sortedChildren[i] == null)continue;
-            if (isTerminalNode(sortedChildren[i].board, sortedChildren[i].score) || depth >= MinMaxBot1.MAX_DEPTH) {
+            sortedChildren[i].remainingBudget = node.remainingBudget / node.numberChildren;
+         //   System.out.println(node.remainingBudget + "/" +node.numberChildren + "=" +  sortedChildren[i].remainingBudget);
+          //  if (isTerminalNode(sortedChildren[i].board, sortedChildren[i].score) || depth >= MinMaxBot1.MAX_DEPTH) {
+            if (isTerminalNode(sortedChildren[i].board, sortedChildren[i].score) || sortedChildren[i].remainingBudget < 6) {
                 node.decision[sortedChildren[i].index] = diffScore(sortedChildren[i].board);
             } else {
                 exploreNextNode(sortedChildren[i], depth + 1, alpha, beta);
@@ -47,7 +51,7 @@ public abstract class MinMaxNode1 {
             if (depth > 0) {
                 if (node.alphabeta(node.evaluation, alpha, beta)) {
                     updateCategoryScore(node, sortedChildren, i, sortedChildren[i]);
-                    break;
+                   return node;
                 }
                 alpha = node.alpha(node.evaluation, alpha);
                 beta = node.beta(node.evaluation, beta);

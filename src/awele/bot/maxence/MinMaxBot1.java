@@ -39,7 +39,6 @@ public class MinMaxBot1 extends CompetitorBot {
     @Override
     public void learn() {
         initCategories();
-
     }
 
     @Override
@@ -49,14 +48,16 @@ public class MinMaxBot1 extends CompetitorBot {
 
     @Override
     public double[] getDecision(Board board) {
-        //     System.out.println("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
+             System.out.println("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
         traces.add("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
         totalExploredNodes += exploredNodes;
        // if (exploredNodes > 75000) System.out.println("EXPLORED NODES : " + exploredNodes);
         exploredNodes = 0;
         explorationBudget = BUDGET;
         playedMoves++;
-        return MinMaxNode1.exploreNextNode(new MaxNode1(board), 0, -Double.MAX_VALUE, Double.MAX_VALUE).getDecision();
+        MinMaxNode1 root = new MaxNode1(board);
+        root.remainingBudget = BUDGET;
+        return MinMaxNode1.exploreNextNode(root, 0, -Double.MAX_VALUE, Double.MAX_VALUE).getDecision();
     }
 
     @Override
@@ -71,7 +72,7 @@ public class MinMaxBot1 extends CompetitorBot {
         MinMaxBot1.playedMoves = 0;
         MinMaxBot1.explorationBudget = BUDGET;
      //     writeFile("trace.txt", traces);
-         writeFile("average.txt", average);
+     //    writeFile("average.txt", average);
           saveCategories();
     }
 
