@@ -5,7 +5,7 @@ import awele.core.InvalidBotException;
 
 public abstract class MinMaxNode1 {
 
-    private static int player;
+    public static int player;
     private double evaluation;
     private double[] decision;
 
@@ -16,28 +16,83 @@ public abstract class MinMaxNode1 {
     private int numberChildren;
     protected int remainingBudget;
 
+    private double detla = 1;
+
     public MinMaxNode1(Board board) {
-        MinMaxNode1.player = board.getCurrentPlayer();
         this.board = board;
         this.decision = new double[Board.NB_HOLES];
         this.evaluation = this.worst();
         this.numberChildren = 0;
     }
 
-    protected static MinMaxNode1 exploreNextNode(MinMaxNode1 node, int depth, double alpha, double beta) {
+    /*
+    protected static MinMaxNode1 exploreNextNode2(MinMaxNode1 node, int depth, double alpha, double beta) {
         if (MinMaxBot1.depthReached < depth) MinMaxBot1.depthReached = depth;
-        MinMaxBot1.exploredNodes++;
-        MinMaxBot1.explorationBudget--;
+
+        //  MinMaxNode1[] sortedChildren = sortChildrenByScore(node, getChildren(node));
+        MinMaxNode1[] sortedChildren = getChildren(node);
+        //    int childrenRemainingBudget = (node.remainingBudget / node.numberChildren) * node.detla;
+        //  if (MinMaxBot1.remainingBudgetMin > childrenRemainingBudget) MinMaxBot1.remainingBudgetMin = childrenRemainingBudget;
+        for (MinMaxNode1 childNode : sortedChildren) {
+            if (childNode == null) continue;
+            MinMaxBot1.exploredNodes++;
+            //        childNode.remainingBudget = childrenRemainingBudget;
+
+            if (isTerminalNode(childNode.board, childNode.score) || depth == MinMaxBot1.MAX_DEPTH) {
+                //     if (isTerminalNode(childNode.board, childNode.score) || childNode.remainingBudget < 6) {
+                node.decision[childNode.index] = diffScore(childNode.board);
+            } else {
+                childNode = exploreNextNode2(childNode, depth + 1, alpha, beta);
+                node.decision[childNode.index] = childNode.getEvaluation();
+            }
+
+            //if (node.minmax(node.decision[childNode.index], node.evaluation) != node.evaluation) {
+            if (node == MinMaxBot1.rootNode) {
+                //     System.out.println("");
+            }
+            node.evaluation = node.minmax(node.decision[childNode.index], node.evaluation);
+            //updateCategoryScore(node, sortedChildren, childNode.index, childNode);
+            //}
+
+            if (depth > 0) {
+                if (node.alphabeta(node.evaluation, alpha, beta)) {
+                    //updateCategoryScore(node, sortedChildren, i, sortedChildren[i]);
+                    return node;
+                }
+                alpha = node.alpha(node.evaluation, alpha);
+                beta = node.beta(node.evaluation, beta);
+            }
+        }
+        return node;
+    }
+*/
+
+    protected static MinMaxNode1 exploreNextNode(MinMaxNode1 node, int depth, double alpha, double beta) {
 
         MinMaxNode1[] sortedChildren = sortChildrenByScore(node, getChildren(node));
-        for (int i = 0; i < sortedChildren.length; i++) {
+        //
+        int childrenRemainingBudget = (int) ((node.remainingBudget / node.numberChildren) * node.detla);
 
-            if (sortedChildren[i] == null)continue;
-            sortedChildren[i].remainingBudget = node.remainingBudget / node.numberChildren;
-         //   System.out.println(node.remainingBudget + "/" +node.numberChildren + "=" +  sortedChildren[i].remainingBudget);
-          //  if (isTerminalNode(sortedChildren[i].board, sortedChildren[i].score) || depth >= MinMaxBot1.MAX_DEPTH) {
-            if (isTerminalNode(sortedChildren[i].board, sortedChildren[i].score) || sortedChildren[i].remainingBudget < 6) {
-                node.decision[sortedChildren[i].index] = diffScore(sortedChildren[i].board);
+        // just for debug
+        if (MinMaxBot1.depthReached < depth) MinMaxBot1.depthReached = depth;
+        if (MinMaxBot1.remainingBudgetMin > childrenRemainingBudget)
+            MinMaxBot1.remainingBudgetMin = childrenRemainingBudget;
+
+
+        for (int i = 0; i < sortedChildren.length; i++) {
+            if (sortedChildren[i] == null) continue;
+
+            //just for debug
+            MinMaxBot1.explorationBudget--;
+            MinMaxBot1.exploredNodes++;
+
+
+            sortedChildren[i].remainingBudget = childrenRemainingBudget;
+
+              if (isTerminalNode(sortedChildren[i].board, sortedChildren[i].score) || depth >= MinMaxBot1.MAX_DEPTH) {
+        //    if (isTerminalNode(sortedChildren[i].board, sortedChildren[i].score) || sortedChildren[i].remainingBudget < 6) {
+                //node.decision[sortedChildren[i].index] = diffScore(sortedChildren[i].board);
+                node.decision[sortedChildren[i].index] = heurisitque2(sortedChildren[i].board);
             } else {
                 exploreNextNode(sortedChildren[i], depth + 1, alpha, beta);
                 node.decision[sortedChildren[i].index] = sortedChildren[i].getEvaluation();
@@ -51,7 +106,7 @@ public abstract class MinMaxNode1 {
             if (depth > 0) {
                 if (node.alphabeta(node.evaluation, alpha, beta)) {
                     updateCategoryScore(node, sortedChildren, i, sortedChildren[i]);
-                   return node;
+                    return node;
                 }
                 alpha = node.alpha(node.evaluation, alpha);
                 beta = node.beta(node.evaluation, beta);
@@ -64,7 +119,7 @@ public abstract class MinMaxNode1 {
     private static void updateCategoryScore(MinMaxNode1 node, MinMaxNode1[] sortedChildren, int i, MinMaxNode1 child) {
         updateScore(getCategory(node, child), i);
         for (int j = 0; j < i; j++) {
-            if (sortedChildren[j] == null)continue;
+            if (sortedChildren[j] == null) continue;
             updateScore(getCategory(node, sortedChildren[j]), -1);
         }
     }
@@ -102,15 +157,15 @@ public abstract class MinMaxNode1 {
     }
 
     private static MinMaxNode1[] sortChildrenByScore(MinMaxNode1 parent, MinMaxNode1[] children) {
-        for (int i = children.length -1; i < 1; i++) {
+        for (int i = children.length - 1; i < 1; i++) {
             for (int j = 0; j < i - 1; j++) {
-                int catJ1 = getCategory(parent, children[j+1]);
+                int catJ1 = getCategory(parent, children[j + 1]);
                 int valueJ1 = MinMaxBot1.categories[catJ1];
                 int catJ = getCategory(parent, children[j]);
                 int valueJ = MinMaxBot1.categories[catJ];
-                if (valueJ1 < valueJ){
-                    MinMaxNode1 temp = children[j+1];
-                    children[j+1] = children[j];
+                if (valueJ1 < valueJ) {
+                    MinMaxNode1 temp = children[j + 1];
+                    children[j + 1] = children[j];
                     children[j] = temp;
                 }
             }
@@ -167,6 +222,128 @@ public abstract class MinMaxNode1 {
      */
     protected abstract double worst();
 
+    /*
+    private static int getNombreTrouPourCapture(boolean self, int nombreGraine, Board board) {
+        int[] holes;
+        int count = 0;
+        if (self) holes = board.getPlayerHoles();
+        else holes = board.getOpponentHoles();
+        for (int i = 0; i < Board.NB_HOLES; i++) {
+            if (holes[i] == nombreGraine)
+        }
+    }
+
+    private static double heuristique2(Board board) {
+
+        double pNombreTrouAdversairePourCapture2Graines = 0.8;
+        double NombreTrouAdversairePourCapture2Graines = 0.8;
+        double a1 = NombreTrouAdversairePourCapture2Graines * pNombreTrouAdversairePourCapture2Graines;
+
+        double pNombreTrouAdversairePourCapture3Graines = 1;
+        double NombreTrouAdversairePourCapture3Graines = 1;
+        double a2 = pNombreTrouAdversairePourCapture3Graines * NombreTrouAdversairePourCapture3Graines;
+
+        double pNombreTrouPourCapture2Graines = 0.06;
+        double NombreTrouPourCapture2Graines = 0.06;
+        double a3 = pNombreTrouPourCapture2Graines * NombreTrouPourCapture2Graines;
+
+        double pNombreTrouPourCapture3Graines = 0;
+        double NombreTrouPourCapture3Graines = 0;
+        double a4 = pNombreTrouPourCapture3Graines * NombreTrouPourCapture3Graines;
+
+
+        double pNombreTrouAdversaireAvecAssezDeGrainePourVenirAutreCote = 0.87;
+        double NombreTrouAdversaireAvecAssezDeGrainePourVenirAutreCote = 0.87;
+        double a5 = pNombreTrouAdversaireAvecAssezDeGrainePourVenirAutreCote * NombreTrouAdversaireAvecAssezDeGrainePourVenirAutreCote;
+
+
+        double pNombreTrouAvecAssezDeGrainePourVenirAutreCote = 0.60;
+        double NombreTrouAvecAssezDeGrainePourVenirAutreCote = 0.60;
+        double a6 = pNombreTrouAvecAssezDeGrainePourVenirAutreCote * NombreTrouAvecAssezDeGrainePourVenirAutreCote;
+
+        double pNombredeKrouAdversaire = 0;
+        double NombredeKrouAdversaire = 0;
+        double a7 = pNombredeKrouAdversaire * NombredeKrouAdversaire;
+
+
+        double pNombreddeKrou = 0.2;
+        double NombreddeKrou = 0.2;
+        double a8 = pNombreddeKrou * NombreddeKrou;
+
+        double pScoreActuelAdversaire = 0.73;
+        double ScoreActuelAdversaire = 0.73;
+        double a9 = pScoreActuelAdversaire * ScoreActuelAdversaire;
+
+
+        double pScoreActuel = 0.93;
+        double ScoreActuel = 0.93;
+        double a10 = pScoreActuel * ScoreActuel;
+
+
+        double pTrouVideAdversaire = 0;
+        double TrouVideAdversaire = 0;
+        double a11 = pTrouVideAdversaire * TrouVideAdversaire;
+
+        double pTrouVide = 0.80;
+        double TrouVide = 0.80;
+        double a12 = pTrouVide * TrouVide;
+
+        return a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12;
+    }
+
+*/
+
+
+    private static int heurisitque2(Board board) {
+        int scorePlayer = board.getScore(MinMaxNode1.player);
+        int scoreOpponent = board.getScore(Board.otherPlayer(MinMaxNode1.player));
+
+        int holesLess3Seeds = 0;
+        int maxSequenceLess3Seeds = 0;
+        int SequenceLess3Seeds = 0;
+
+        boolean sequence = false;
+        for (int j = 0; j < Board.NB_HOLES; j++) {
+            if (board.getPlayerHoles()[j] < 3 && board.getPlayerHoles()[j] >0) {
+                holesLess3Seeds++;
+                if (sequence) {
+                    SequenceLess3Seeds++;
+                    if (SequenceLess3Seeds > maxSequenceLess3Seeds) maxSequenceLess3Seeds = SequenceLess3Seeds;
+                }
+                sequence = true;
+            } else {
+                sequence = false;
+            }
+        }
+        if (holesLess3Seeds > 0) maxSequenceLess3Seeds += 1;
+
+        int holesLess3SeedsOpponent = 0;
+        int maxSequenceLess3SeedsOpponent = 0;
+        int SequenceLess3SeedsOpponent = 0;
+
+        sequence = false;
+
+        for (int j = Board.NB_HOLES - 1; j >= 0; j--) {
+            if (board.getOpponentHoles()[j] < 3 && board.getOpponentHoles()[j] > 0) {
+                holesLess3SeedsOpponent++;
+                if (sequence) {
+                    SequenceLess3SeedsOpponent++;
+                    if (SequenceLess3SeedsOpponent > maxSequenceLess3SeedsOpponent)maxSequenceLess3SeedsOpponent = SequenceLess3SeedsOpponent;
+                }
+                sequence = true;
+            }else{
+                sequence = false;
+            }
+        }
+        if (SequenceLess3SeedsOpponent > 0) maxSequenceLess3SeedsOpponent += 1;
+
+        // return scorePlayer + holesLess3Seeds + maxSequenceLess3Seeds - scoreOpponent;
+      //  return scorePlayer - scoreOpponent - holesLess3Seeds - maxSequenceLess3Seeds;
+       return scorePlayer - scoreOpponent - holesLess3Seeds - maxSequenceLess3Seeds + holesLess3SeedsOpponent + maxSequenceLess3SeedsOpponent;
+        //      return scorePlayer - scoreOpponent;
+
+
+    }
 
     private static int diffScore(Board board) {
         return board.getScore(MinMaxNode1.player) - board.getScore(Board.otherPlayer(MinMaxNode1.player));

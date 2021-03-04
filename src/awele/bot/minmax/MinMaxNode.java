@@ -74,6 +74,7 @@ public abstract class MinMaxNode
                     /* Coupe alpha-beta */ 
                     if (depth > 0)
                     {
+                            
                         alpha = this.alpha (this.evaluation, alpha);
                         beta = this.beta (this.evaluation, beta);
                     }                        

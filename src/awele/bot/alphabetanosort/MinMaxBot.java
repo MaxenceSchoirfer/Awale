@@ -8,14 +8,14 @@ import awele.core.InvalidBotException;
 public class MinMaxBot extends CompetitorBot {
 
     /** Profondeur maximale */
-    private static final int MAX_DEPTH = 9;
+    private static final int MAX_DEPTH = 10;
 
     /**
      * @throws InvalidBotException
      */
     public MinMaxBot () throws InvalidBotException
     {
-        this.setBotName ("AlphaBetaSansTri");
+        this.setBotName ("AlphaBetaDepth9");
         this.addAuthor ("Maxence");
     }
 
@@ -42,7 +42,8 @@ public class MinMaxBot extends CompetitorBot {
     public double [] getDecision (Board board)
     {
         MinMaxNode.initialize (board, MinMaxBot.MAX_DEPTH);
-        return new MaxNode(board).getDecision ();
+        double[] decision = new MaxNode(board).getDecision();
+        return decision;
     }
 
     /**

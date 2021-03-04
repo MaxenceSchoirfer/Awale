@@ -95,6 +95,7 @@ public class Awele extends OutputWriter
         this.players [1].finish ();
         this.runningTime += System.currentTimeMillis () - start;
         this.print ("Score: " + game1Score [0] + " - " + game1Score [1]);
+
         this.print ("Partie 2");
         start = System.currentTimeMillis ();
         this.players [0].initialize ();

@@ -14,21 +14,25 @@ public class MinMaxBot1 extends CompetitorBot {
 
     protected static final int MAX_DEPTH = 9;
     protected static final int BUDGET = 100000;
+    public static int[] categories;
 
+
+
+    //other variables for debug
     public static int exploredNodes;
     public static int totalExploredNodes;
     public static int playedMoves;
     public static int depthReached;
     public static int explorationBudget;
-
-    public static int[] categories;
+    public static int remainingBudgetMin;
+    public static MinMaxNode1 rootNode;
 
     ArrayList<String> traces = new ArrayList<>();
     ArrayList<String> average = new ArrayList<>();
     ArrayList<String> categoriesStrings = new ArrayList<>();
 
     public MinMaxBot1() throws InvalidBotException {
-        this.setBotName("MinMaxMaxence");
+        this.setBotName("MinMaxWithBudget");
         this.addAuthor("Maxence Schoirfer");
         exploredNodes = 0;
         playedMoves = 0;
@@ -48,29 +52,43 @@ public class MinMaxBot1 extends CompetitorBot {
 
     @Override
     public double[] getDecision(Board board) {
-             System.out.println("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
+  //if( playedMoves == 1)
+      System.out.println("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", minRemainingBudget : " + remainingBudgetMin + "\n");
         traces.add("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
         totalExploredNodes += exploredNodes;
        // if (exploredNodes > 75000) System.out.println("EXPLORED NODES : " + exploredNodes);
         exploredNodes = 0;
         explorationBudget = BUDGET;
         playedMoves++;
+
         MinMaxNode1 root = new MaxNode1(board);
         root.remainingBudget = BUDGET;
-        return MinMaxNode1.exploreNextNode(root, 0, -Double.MAX_VALUE, Double.MAX_VALUE).getDecision();
+        remainingBudgetMin = BUDGET; // debug
+        //rootNode = root;
+        MinMaxNode1.player = board.getCurrentPlayer();
+        MinMaxNode1.exploreNextNode(root, 0, -Double.MAX_VALUE, Double.MAX_VALUE);
+//        if (depthReached < MAX_DEPTH){
+//             root = new MaxNode1(board);
+//            exploredNodes = 0;
+//             remainingBudgetMin = BUDGET +1;
+//            MinMaxNode1.exploreNextNode2(root, 0, -Double.MAX_VALUE, Double.MAX_VALUE);
+//        }
+
+        return root.getDecision();
     }
 
     @Override
     public void finish() {
         //   System.out.println("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
      //      traces.add("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
-     //     traces.add("-------------------------------- END ---------------------------------");
-          average.add("Moyenne de noeuds explorés : " + totalExploredNodes/playedMoves);
+        System.out.println("----------------------------------------------------------------- END -------------------------------------------------------------------");
+        average.add("Moyenne de noeuds explorés : " + totalExploredNodes/playedMoves);
 
         MinMaxBot1.totalExploredNodes = 0;
         MinMaxBot1.exploredNodes = 0;
         MinMaxBot1.playedMoves = 0;
         MinMaxBot1.explorationBudget = BUDGET;
+        depthReached = 0;
      //     writeFile("trace.txt", traces);
      //    writeFile("average.txt", average);
           saveCategories();
@@ -88,7 +106,7 @@ public class MinMaxBot1 extends CompetitorBot {
     }
 
     private void initCategories() {
-        categories = new int[10000];
+        categories = new int[14200];
         try {
             File f = new File("data.txt");
             BufferedReader b = new BufferedReader(new FileReader(f));
