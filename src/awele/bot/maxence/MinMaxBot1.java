@@ -12,10 +12,16 @@ import java.util.Map;
 
 public class MinMaxBot1 extends CompetitorBot {
 
-    protected static final int MAX_DEPTH = 9;
-    protected static final int BUDGET = 100000;
-    public static int[] categories;
+    protected static final boolean DEBUG = true;
+    protected static final int BUDGET = (int) 3e6;
+    protected static int[] categories;
 
+
+    protected int movesNumber;
+
+    protected double totalTime;
+    protected double startTimer;
+    protected double endTimer;
 
 
     //other variables for debug
@@ -25,19 +31,25 @@ public class MinMaxBot1 extends CompetitorBot {
     public static int depthReached;
     public static int explorationBudget;
     public static int remainingBudgetMin;
-    public static MinMaxNode1 rootNode;
 
-    ArrayList<String> traces = new ArrayList<>();
-    ArrayList<String> average = new ArrayList<>();
-    ArrayList<String> categoriesStrings = new ArrayList<>();
+    ArrayList<String> traces;
+    ArrayList<String> average;
+    ArrayList<String> categoriesStrings;
 
     public MinMaxBot1() throws InvalidBotException {
         this.setBotName("MinMaxWithBudget");
         this.addAuthor("Maxence Schoirfer");
-        exploredNodes = 0;
-        playedMoves = 0;
-        depthReached = 0;
-        explorationBudget = BUDGET;
+        categoriesStrings = new ArrayList<>();
+        if (DEBUG) {
+            exploredNodes = 0;
+            playedMoves = 0;
+            depthReached = 0;
+            traces = new ArrayList<>();
+            average = new ArrayList<>();
+            explorationBudget = BUDGET;
+        }
+
+
     }
 
     @Override
@@ -47,61 +59,62 @@ public class MinMaxBot1 extends CompetitorBot {
 
     @Override
     public void initialize() {
-      //   traces.add("---------- New Game ----------");
+        movesNumber = 0;
+        totalTime = 0;
+        MinMaxNode1.detla = 1.15f;
     }
 
     @Override
     public double[] getDecision(Board board) {
-  //if( playedMoves == 1)
-      System.out.println("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", minRemainingBudget : " + remainingBudgetMin + "\n");
-        traces.add("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
-        totalExploredNodes += exploredNodes;
-       // if (exploredNodes > 75000) System.out.println("EXPLORED NODES : " + exploredNodes);
-        exploredNodes = 0;
-        explorationBudget = BUDGET;
-        playedMoves++;
+        startTimer = System.currentTimeMillis();
 
         MinMaxNode1 root = new MaxNode1(board);
         root.remainingBudget = BUDGET;
-        remainingBudgetMin = BUDGET; // debug
-        //rootNode = root;
         MinMaxNode1.player = board.getCurrentPlayer();
         MinMaxNode1.exploreNextNode(root, 0, -Double.MAX_VALUE, Double.MAX_VALUE);
-//        if (depthReached < MAX_DEPTH){
-//             root = new MaxNode1(board);
-//            exploredNodes = 0;
-//             remainingBudgetMin = BUDGET +1;
-//            MinMaxNode1.exploreNextNode2(root, 0, -Double.MAX_VALUE, Double.MAX_VALUE);
-//        }
+        endTimer = System.currentTimeMillis();
+        double runningTime = endTimer - startTimer;
+        totalTime += runningTime;
+        movesNumber++;
+        double averageRunningTime = totalTime / movesNumber;
 
+        if (DEBUG) {
+            System.out.println("\nMove " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached);
+            totalExploredNodes += exploredNodes;
+            exploredNodes = 0;
+            playedMoves++;
+            explorationBudget = BUDGET;
+            remainingBudgetMin = BUDGET;
+            depthReached = 0;
+        }
+
+
+        if (DEBUG) System.out.println("Temps d'execution : " + (runningTime));
+        if (DEBUG) System.out.println("Temps d'execution moyen : " + averageRunningTime);
+        if (DEBUG) System.out.println("Delta : " + (MinMaxNode1.detla));
+        if (averageRunningTime < 90 && runningTime < 120) MinMaxNode1.detla *= 1.1;
+        else if (averageRunningTime > 100 && runningTime > 80) MinMaxNode1.detla *= 0.9;
         return root.getDecision();
     }
 
     @Override
     public void finish() {
-        //   System.out.println("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
-     //      traces.add("Move " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached + ", Budget : " + explorationBudget + "\n");
-        System.out.println("----------------------------------------------------------------- END -------------------------------------------------------------------");
-        average.add("Moyenne de noeuds explorés : " + totalExploredNodes/playedMoves);
+        if (DEBUG) {
+            System.out.println("----------------------------------------------------------------- END -------------------------------------------------------------------");
+            System.out.println("Moyenne de noeuds explorés : " + totalExploredNodes / playedMoves);
+            MinMaxBot1.totalExploredNodes = 0;
+            MinMaxBot1.exploredNodes = 0;
+            MinMaxBot1.playedMoves = 0;
+            MinMaxBot1.explorationBudget = BUDGET;
+            depthReached = 0;
+        }
 
-        MinMaxBot1.totalExploredNodes = 0;
-        MinMaxBot1.exploredNodes = 0;
-        MinMaxBot1.playedMoves = 0;
-        MinMaxBot1.explorationBudget = BUDGET;
-        depthReached = 0;
-     //     writeFile("trace.txt", traces);
-     //    writeFile("average.txt", average);
-          saveCategories();
+
+        saveCategories();
     }
 
     private void saveCategories() {
-        for (int i = 0; i < categories.length; i++) {
-            //if( categories[i] != 0 )
-                categoriesStrings.add(i + "/" + categories[i]);
-        }
-//        for (Map.Entry<String, Integer> entry : categories.entrySet()) {
-//            categoriesStrings.add(entry.getKey() + "/" + entry.getValue());
-//        }
+        for (int i = 0; i < categories.length; i++) categoriesStrings.add(i + "/" + categories[i]);
         if (categoriesStrings.size() > 0) writeFile("data.txt", categoriesStrings);
     }
 
@@ -114,7 +127,6 @@ public class MinMaxBot1 extends CompetitorBot {
             while ((readLine = b.readLine()) != null) {
                 String[] parts = readLine.split("/");
                 categories[Integer.parseInt(parts[0])] = Integer.parseInt(parts[1]);
-                //categories.put(parts[0], Integer.valueOf(parts[1]));
             }
         } catch (IOException e) {
             e.printStackTrace();

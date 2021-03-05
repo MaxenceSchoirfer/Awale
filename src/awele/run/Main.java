@@ -32,7 +32,7 @@ public final class Main extends OutputWriter
     private static final int NB_RUNS = 1;
     //private static final int NB_RUNS = 1;
     private static final int MAX_LEARNING_TIME = 1000 * 60 * 60 * 1; // 1 h
-    private static final int MAX_DECISION_TIME = 200 * 10; // 100 ms *10
+    private static final int MAX_DECISION_TIME = 200 *1000; // 100 ms
     private static final int MAX_MEMORY = 1024 * 1024 * 64; // 64 MiB
     private static final int MAX_TOTAL_MEMORY = 1024 * 1024 * 1024; // 1 GiB
 
@@ -116,15 +116,18 @@ public final class Main extends OutputWriter
         }
         long randomAverageDecisionTime = randomRunningTime / nbMoves;
         
-        Reflections reflections = new Reflections ("awele.bot");
-        // Pour l'évaluation, seuls les bots des étudiants (CompetitorBot) sont mis en compétition 
+      //  Reflections reflections = new Reflections ("awele.bot");
+        Reflections reflections = new Reflections ("awele.bot.aheuristique");
+
+        // Pour l'évaluation, seuls les bots des étudiants (CompetitorBot) sont mis en compétition
         //Set <Class <? extends CompetitorBot>> subClassesTmp = reflections.getSubTypesOf (CompetitorBot.class);
         Set <Class <? extends Bot>> subClassesTmp = reflections.getSubTypesOf (Bot.class);
         ArrayList <Class <? extends Bot>> subClasses = new ArrayList <Class <? extends Bot>> ();
         for (Class <? extends Bot> subClass : subClassesTmp)
         {
             if (!Modifier.isAbstract (subClass.getModifiers ())){
-                if (subClass.getPackageName().contains("maxence") || subClass.getPackageName().contains("minmax"))
+           //     subClasses.add (subClass);
+               // if (subClass.getPackageName().contains("alpha") || subClass.getPackageName().contains("maxence"))
                     subClasses.add (subClass);
 
             }
@@ -160,6 +163,9 @@ public final class Main extends OutputWriter
                         this.printDisqual (bot.getName (), "temps d'apprentissage trop long");
                     else
                     {
+                        for (int i = 0; i < 1; i++) {
+
+
                         Awele awele = new Awele (bot, random);
                         awele.play ();
                         long decisionTime = (long) ((2 * awele.getRunningTime ()) / awele.getNbMoves ()) - randomAverageDecisionTime;
@@ -179,6 +185,8 @@ public final class Main extends OutputWriter
                                 this.printDisqual (bot.getName (), "volume mémoire trop important");
                             else
                                 this.bots.add (bot);
+                        }
+                            System.out.println("--------------------------------------------------------------------------------\n\n");
                         }
                     }
                 }
