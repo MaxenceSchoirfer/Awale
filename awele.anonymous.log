@@ -1,12 +1,8 @@
 Mémoire totale : 4.0 GiB
-Instanciation du bot "Random"
 2 classes ont été trouvées
 class awele.bot.maxence.MinMaxBot1
 class awele.bot.alphabetanosort.MinMaxBot
 
 Bot 1/2
 Classe : awele.bot.maxence.MinMaxBot1
-Instanciation du bot "MinMaxWithBudget"
 Nom du bot : MinMaxWithBudget
-Instanciation du bot "Random"
-Instanciation du bot "AlphaBetaDepth9"

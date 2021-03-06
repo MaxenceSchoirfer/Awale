@@ -31,7 +31,7 @@ public abstract class Bot
     protected void setBotName (String name)
     {
         this.name = name;
-        Main.getInstance ().print ("Instanciation du bot \"" + name + "\"");
+     //   Main.getInstance ().print ("Instanciation du bot \"" + name + "\"");
     }
 
     /**

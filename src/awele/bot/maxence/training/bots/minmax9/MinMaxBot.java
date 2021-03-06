@@ -1,8 +1,6 @@
-package awele.bot.maxence.bots.minmax9;
+package awele.bot.maxence.training.bots.minmax9;
 
 import awele.bot.Bot;
-import awele.bot.CompetitorBot;
-import awele.bot.DemoBot;
 import awele.core.Board;
 import awele.core.InvalidBotException;
 

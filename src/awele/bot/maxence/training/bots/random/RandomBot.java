@@ -1,4 +1,4 @@
-package awele.bot.maxence.bots.random;
+package awele.bot.maxence.training.bots.random;
 
 import awele.bot.Bot;
 import awele.bot.DemoBot;
