@@ -104,8 +104,8 @@ public class MinMaxBot1 extends CompetitorBot {
 
     private void upgradeCategories() {
         try {
-            playGame(random);
-           // playGame(minMaxBot9);
+          //  playGame(random);
+            playGame(minMaxBot9);
             playGame(this);
             System.out.println("\n");
         } catch (Exception e) {
