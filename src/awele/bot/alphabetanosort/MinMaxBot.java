@@ -15,7 +15,7 @@ public class MinMaxBot extends CompetitorBot {
      */
     public MinMaxBot () throws InvalidBotException
     {
-        this.setBotName ("AlphaBetaDepth11");
+        this.setBotName ("AlphaBetaDepth"+MAX_DEPTH);
         this.addAuthor ("Maxence");
     }
 

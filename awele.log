@@ -1,19 +1,13 @@
 Mémoire totale : 4.0 GiB
 Instanciation du bot "Random"
-9 classes ont été trouvées
-class awele.bot.aheuristique.h6.MinMaxBot1
-class awele.bot.aheuristique.alphabeta.MinMaxBot
-class awele.bot.aheuristique.h5.MinMaxBot1
-class awele.bot.aheuristique.h7.MinMaxBot1
-class awele.bot.aheuristique.h8.MinMaxBot1
-class awele.bot.aheuristique.h3.MinMaxBot1
-class awele.bot.aheuristique.h4.MinMaxBot1
-class awele.bot.aheuristique.h1.MinMaxBot1
-class awele.bot.aheuristique.h2.MinMaxBot1
+2 classes ont été trouvées
+class awele.bot.maxence.MinMaxBot1
+class awele.bot.alphabetanosort.MinMaxBot
 
-Bot 1/9
-Classe : awele.bot.aheuristique.h6.MinMaxBot1
-Instanciation du bot "h6"
-Nom du bot : h6
+Bot 1/2
+Classe : awele.bot.maxence.MinMaxBot1
+Instanciation du bot "MinMaxWithBudget"
+Nom du bot : MinMaxWithBudget
 Auteur(s) : Maxence Schoirfer
-Temps d'apprentissage : 00:00:00.096
+Instanciation du bot "Random"
+Instanciation du bot "AlphaBetaDepth9"

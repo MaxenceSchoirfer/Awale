@@ -1,20 +1,29 @@
 package awele.bot.maxence;
 
+import awele.bot.Bot;
 import awele.bot.CompetitorBot;
+import awele.bot.maxence.bots.minmax9.MinMaxBot;
+import awele.bot.maxence.bots.random.RandomBot;
+import awele.core.Awele;
 import awele.core.Board;
 import awele.core.InvalidBotException;
+import awele.run.Main;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class MinMaxBot1 extends CompetitorBot {
 
     protected static final boolean DEBUG = true;
+    protected static final boolean LEARN = true;
     protected static final int BUDGET = (int) 3e6;
     protected static int[] categories;
+
+    //private static final int MAX_LEARNING_TIME = 1000 * 60 * 60 * 1; // 1 h
+    private static final int MAX_LEARNING_TIME = 1000 * 60 * 30 * 1; // 1 h
+    protected static double startLearningTime;
+    protected static double endLearningTime;
 
 
     protected int movesNumber;
@@ -36,6 +45,10 @@ public class MinMaxBot1 extends CompetitorBot {
     ArrayList<String> average;
     ArrayList<String> categoriesStrings;
 
+
+    RandomBot random;
+    MinMaxBot minMaxBot9;
+
     public MinMaxBot1() throws InvalidBotException {
         this.setBotName("MinMaxWithBudget");
         this.addAuthor("Maxence Schoirfer");
@@ -54,8 +67,53 @@ public class MinMaxBot1 extends CompetitorBot {
 
     @Override
     public void learn() {
-        initCategories();
+        //   initCategories();
+        startLearningTime = System.currentTimeMillis();
+        categories = new int[14200];
+
+        int count = 0;
+        if (LEARN){
+            try {
+                random = new RandomBot();
+                minMaxBot9 = new MinMaxBot();
+            } catch (InvalidBotException e) {
+                e.printStackTrace();
+            }
+
+            //choisir les poids heuristique
+            //   parametrer delta
+
+            do {
+                upgradeCategories();
+                count++;
+                endLearningTime = System.currentTimeMillis();
+                System.out.println("Learning : " + ((endLearningTime - startLearningTime)/1000));
+                System.out.println("Count : " + count);
+            } while (endLearningTime - startLearningTime < MAX_LEARNING_TIME);
+            System.out.println("Fin Apprentissage");
+        }
+
     }
+
+    private void playGame(Bot opponent) throws InvalidBotException {
+        Awele awele = new Awele(opponent, this);
+      //  long e = System.currentTimeMillis();
+        awele.play();
+      //  System.out.println(System.currentTimeMillis() - e);
+    }
+
+    private void upgradeCategories() {
+        try {
+            playGame(random);
+           // playGame(minMaxBot9);
+            playGame(this);
+            System.out.println("\n");
+        } catch (Exception e) {
+            System.out.println(e.toString());
+            System.exit(-1);
+        }
+    }
+
 
     @Override
     public void initialize() {
@@ -79,7 +137,7 @@ public class MinMaxBot1 extends CompetitorBot {
         double averageRunningTime = totalTime / movesNumber;
 
         if (DEBUG) {
-            System.out.println("\nMove " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached);
+         //   System.out.println("\nMove " + playedMoves + " : \n" + "Nodes: " + exploredNodes + ", Depth : " + depthReached);
             totalExploredNodes += exploredNodes;
             exploredNodes = 0;
             playedMoves++;
@@ -89,9 +147,9 @@ public class MinMaxBot1 extends CompetitorBot {
         }
 
 
-        if (DEBUG) System.out.println("Temps d'execution : " + (runningTime));
-        if (DEBUG) System.out.println("Temps d'execution moyen : " + averageRunningTime);
-        if (DEBUG) System.out.println("Delta : " + (MinMaxNode1.detla));
+  //      if (DEBUG) System.out.println("Temps d'execution : " + (runningTime));
+    //    if (DEBUG) System.out.println("Temps d'execution moyen : " + averageRunningTime);
+    //    if (DEBUG) System.out.println("Delta : " + (MinMaxNode1.detla));
         if (averageRunningTime < 90 && runningTime < 120) MinMaxNode1.detla *= 1.1;
         else if (averageRunningTime > 100 && runningTime > 80) MinMaxNode1.detla *= 0.9;
         return root.getDecision();
@@ -101,7 +159,7 @@ public class MinMaxBot1 extends CompetitorBot {
     public void finish() {
         if (DEBUG) {
             System.out.println("----------------------------------------------------------------- END -------------------------------------------------------------------");
-            System.out.println("Moyenne de noeuds explorés : " + totalExploredNodes / playedMoves);
+          //  System.out.println("Moyenne de noeuds explorés : " + totalExploredNodes / playedMoves);
             MinMaxBot1.totalExploredNodes = 0;
             MinMaxBot1.exploredNodes = 0;
             MinMaxBot1.playedMoves = 0;
@@ -110,7 +168,7 @@ public class MinMaxBot1 extends CompetitorBot {
         }
 
 
-        saveCategories();
+     //   saveCategories();
     }
 
     private void saveCategories() {

@@ -29,7 +29,7 @@ public final class Main extends OutputWriter
     
     private static final String LOG_FILE = "awele.log";
     private static final String ANONYMOUS_LOG_FILE = "awele.anonymous.log";
-    private static final int NB_RUNS = 1;
+    private static final int NB_RUNS = 10;
     //private static final int NB_RUNS = 1;
     private static final int MAX_LEARNING_TIME = 1000 * 60 * 60 * 1; // 1 h
     private static final int MAX_DECISION_TIME = 200 *1000; // 100 ms
@@ -117,17 +117,17 @@ public final class Main extends OutputWriter
         long randomAverageDecisionTime = randomRunningTime / nbMoves;
         
       //  Reflections reflections = new Reflections ("awele.bot");
-        Reflections reflections = new Reflections ("awele.bot.aheuristique");
+        Reflections reflections = new Reflections ("awele.bot");
 
         // Pour l'évaluation, seuls les bots des étudiants (CompetitorBot) sont mis en compétition
-        //Set <Class <? extends CompetitorBot>> subClassesTmp = reflections.getSubTypesOf (CompetitorBot.class);
-        Set <Class <? extends Bot>> subClassesTmp = reflections.getSubTypesOf (Bot.class);
+        Set <Class <? extends CompetitorBot>> subClassesTmp = reflections.getSubTypesOf (CompetitorBot.class);
+       // Set <Class <? extends Bot>> subClassesTmp = reflections.getSubTypesOf (Bot.class);
         ArrayList <Class <? extends Bot>> subClasses = new ArrayList <Class <? extends Bot>> ();
         for (Class <? extends Bot> subClass : subClassesTmp)
         {
             if (!Modifier.isAbstract (subClass.getModifiers ())){
            //     subClasses.add (subClass);
-               // if (subClass.getPackageName().contains("alpha") || subClass.getPackageName().contains("maxence"))
+                if (subClass.getPackageName().contains("alpha") || subClass.getPackageName().contains("maxence"))
                     subClasses.add (subClass);
 
             }

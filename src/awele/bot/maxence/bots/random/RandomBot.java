@@ -1,27 +1,28 @@
-package awele.bot.random;
+package awele.bot.maxence.bots.random;
 
-import java.util.Random;
-
+import awele.bot.Bot;
 import awele.bot.DemoBot;
 import awele.core.Board;
 import awele.core.InvalidBotException;
+
+import java.util.Random;
 
 /**
  * @author Alexandre Blansché
  * Bot qui joue au hasard
  */
-public class RandomBot extends DemoBot
+public class RandomBot extends Bot
 {
     private Random random;
     
     /**
      * @throws InvalidBotException
      */
-    public RandomBot () throws InvalidBotException
+    public RandomBot() throws InvalidBotException
     {
         this.setBotName ("Random");
-        this.addAuthor ("Alexandre Blansché");
-
+        this.addAuthor ("Maxence Schorfer");
+        this.random = new Random (System.currentTimeMillis ());
     }
 
     /**
@@ -50,7 +51,7 @@ public class RandomBot extends DemoBot
     @Override
     public void learn ()
     {
-        this.random = new Random (System.currentTimeMillis ());
+
     }
 
     /**

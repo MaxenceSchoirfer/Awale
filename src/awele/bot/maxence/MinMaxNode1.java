@@ -9,12 +9,15 @@ public abstract class MinMaxNode1 {
     private double evaluation;
     private double[] decision;
 
-    private Board board;
+    private final Board board;
     private int score;
     private int index;
 
     private int numberChildren;
     protected int remainingBudget;
+
+    protected static int[] weightFeatures;
+    protected static double[] features;
 
     public static float detla = 1;
 
@@ -23,6 +26,18 @@ public abstract class MinMaxNode1 {
         this.decision = new double[Board.NB_HOLES];
         this.evaluation = this.worst();
         this.numberChildren = 0;
+
+        weightFeatures = new int[8];
+        features = new double[8];
+
+        weightFeatures[0] = 1;
+        weightFeatures[1] = 1;
+        weightFeatures[2] = 1;
+        weightFeatures[3] = 1;
+        weightFeatures[4] = 1;
+        weightFeatures[5] = 1;
+        weightFeatures[6] = 1;
+        weightFeatures[7] = 1;
     }
 
 
@@ -175,61 +190,30 @@ public abstract class MinMaxNode1 {
      */
     protected abstract double worst();
 
-    private static int evaluateNode(Board board) {
-        int SequenceLess3Seeds = 0;
-        int SequenceLess3SeedsOpponent = 0;
+    private static double evaluateNode(Board board) {
+        features[0] = board.getScore(MinMaxNode1.player); //score
+        features[1] = board.getScore(Board.otherPlayer(MinMaxNode1.player)); //score opponent
+        features[2] = 0;//n holes with 1 or 2 seeds
+        features[3] = 0;//n holes opponent with 1 or 2 seeds
+        features[4] = 0;//n holes with 0 seed
+        features[5] = 0;//n holes opponent with 0 seed
+        features[6] = 0;//n holes with >= 12 seeds
+        features[7] = 0;//n opponent holes with >= 12 seeds
 
 
-        int a1 = board.getScore(MinMaxNode1.player);
-        int a3 = 0;
-        int a5 = 0;
-        int a7 = 0;
-        int a9 = 0;
-
-        boolean sequence = false;
         for (int j = 0; j < Board.NB_HOLES; j++) {
-            if (board.getPlayerHoles()[j] >= 12 && a7 < board.getPlayerHoles()[j]) a7 = board.getPlayerHoles()[j];
-            if (board.getPlayerHoles()[j] == 0) a5++;
-
-            if (board.getPlayerHoles()[j] == 1 && board.getPlayerHoles()[j] == 2) {
-                a3++;
-                if (sequence) {
-                    SequenceLess3Seeds++;
-                    if (SequenceLess3Seeds > a9) a9 = SequenceLess3Seeds;
-                }
-                sequence = true;
-            } else {
-                sequence = false;
-            }
+            if (board.getPlayerHoles()[j] == 1 && board.getPlayerHoles()[j] == 2) features[2]++;
+            else if (board.getPlayerHoles()[j] == 0) features[4]++;
+            else if (board.getPlayerHoles()[j] >= 12) features[6]++;
         }
-        if (a3 > 0) a9 += 1;
 
-
-        int a2 = board.getScore(Board.otherPlayer(MinMaxNode1.player));
-        int a4 = 0;
-        int a6 = 0;
-        int a8 = 0;
-        int a10 = 0;
-
-        sequence = false;
         for (int j = Board.NB_HOLES - 1; j >= 0; j--) {
-            if (board.getOpponentHoles()[j] >= 12 && a8 < board.getOpponentHoles()[j]) a8 = board.getOpponentHoles()[j];
-            if (board.getOpponentHoles()[j] == 0) a6++;
-            if (board.getOpponentHoles()[j] == 1 && board.getOpponentHoles()[j] == 2) {
-                a4++;
-                if (sequence) {
-                    SequenceLess3SeedsOpponent++;
-                    if (SequenceLess3SeedsOpponent > a10) a10 = SequenceLess3SeedsOpponent;
-                }
-                sequence = true;
-            } else {
-                sequence = false;
-            }
+            if (board.getOpponentHoles()[j] == 1 && board.getOpponentHoles()[j] == 2) features[3]++;
+            else if (board.getOpponentHoles()[j] == 0) features[5]++;
+            else if (board.getOpponentHoles()[j] >= 12) features[7]++;
         }
-        if (a4 > 0) a10 += 1;
 
-        return a1 - a2;
-        //- a3 + a4 - a9 + a10;
+        return weightFeatures[0] * features[0] + (-weightFeatures[1]) * features[1];
     }
 
 
