@@ -1,28 +1,29 @@
-package awele.bot.aaahumanoid;
+package awele.bot.humanoid;
 
 import awele.core.Board;
 
-public class MinNode extends MinMaxNode
+public class MaxNode extends MinMaxNode
 {
-    public MinNode(Board board) {
+
+    public MaxNode(Board board) {
         super(board);
     }
 
     /**
-     * Retourne le min
+     * Retourne le max
      * @param eval1 Un double
      * @param eval2 Un autre double
-     * @return Le min entre deux valeurs, selon le type de noeud
+     * @return Le max entre deux valeurs, selon le type de noeud
      */
     @Override
     protected double minmax (double eval1, double eval2)
     {
-        return Math.min (eval1, eval2);
+        return Math.max (eval1, eval2);
     }
 
     /**
      * Indique s'il faut faire une coupe alpha-beta
-     * (si l'évaluation courante du noeud est inférieure à l'évaluation courante du noeud parent)
+     * (si l'évaluation courante du noeud est supérieure à l'évaluation courante du noeud parent)
      * @param eval L'évaluation courante du noeud
      * @param alpha Le seuil pour la coupe alpha
      * @param beta Le seuil pour la coupe beta
@@ -31,12 +32,12 @@ public class MinNode extends MinMaxNode
     @Override
     protected boolean alphabeta (double eval, double alpha, double beta)
     {
-        return eval <= alpha;
+        return eval >= beta;
     }
 
     @Override
-    protected MaxNode getNextNode(Board board) {
-        return new MaxNode(board);
+    protected MinMaxNode getNextNode(Board board) {
+        return new MinNode(board);
     }
 
     /**
@@ -48,7 +49,7 @@ public class MinNode extends MinMaxNode
     @Override
     protected double alpha (double evaluation, double alpha)
     {
-        return alpha;
+        return Math.max (evaluation, alpha);
     }
 
     /**
@@ -60,13 +61,13 @@ public class MinNode extends MinMaxNode
     @Override
     protected double beta (double evaluation, double beta)
     {
-        return Math.min (evaluation, beta);
+        return beta;
     }
 
-    /** Pire score : une grande valeur */
+    /** Pire score : une petite valeur */
     @Override
     protected double worst ()
     {
-        return Double.MAX_VALUE;
+        return -Double.MAX_VALUE;
     }
 }

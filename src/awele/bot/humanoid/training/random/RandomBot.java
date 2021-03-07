@@ -1,4 +1,4 @@
-package awele.bot.aaahumanoid.training.random;
+package awele.bot.humanoid.training.random;
 
 import awele.bot.DemoBot;
 import awele.core.Board;

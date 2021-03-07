@@ -1,8 +1,8 @@
-package awele.bot.aaahumanoid;
+package awele.bot.humanoid;
 
 import awele.bot.Bot;
-import awele.bot.aaahumanoid.training.minmax9.MinMaxBot;
-import awele.bot.aaahumanoid.training.random.RandomBot;
+import awele.bot.humanoid.training.minmax9.MinMaxBot;
+import awele.bot.humanoid.training.random.RandomBot;
 import awele.core.Awele;
 import awele.core.InvalidBotException;
 
@@ -77,7 +77,6 @@ public class Tools {
             }
             bestWeight = compareWeightFeatures(bestWeight, weightBase);
         } while (System.currentTimeMillis() - start < time);
-        System.out.println("Mutation Ended : " + bestWeight);
         return bestWeight;
     }
 

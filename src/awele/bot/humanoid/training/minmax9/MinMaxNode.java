@@ -1,4 +1,4 @@
-package awele.bot.aaahumanoid.training.minmax9;
+package awele.bot.humanoid.training.minmax9;
 
 import awele.core.Board;
 import awele.core.InvalidBotException;

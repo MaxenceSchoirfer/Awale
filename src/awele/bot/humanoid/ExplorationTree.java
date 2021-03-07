@@ -1,4 +1,4 @@
-package awele.bot.aaahumanoid;
+package awele.bot.humanoid;
 
 import awele.core.Board;
 import awele.core.InvalidBotException;
