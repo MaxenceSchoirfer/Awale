@@ -1,21 +1,20 @@
-package awele.bot.alphabetanosort;
+package awele.bot.aaahumanoid.training.minmax9;
 
-import awele.bot.CompetitorBot;
 import awele.bot.DemoBot;
 import awele.core.Board;
 import awele.core.InvalidBotException;
 
-public class MinMaxBot extends CompetitorBot {
+public class MinMaxBot extends DemoBot {
 
     /** Profondeur maximale */
-    private static final int MAX_DEPTH = 10;
+    private static final int MAX_DEPTH = 9;
 
     /**
      * @throws InvalidBotException
      */
     public MinMaxBot () throws InvalidBotException
     {
-        this.setBotName ("AlphaBetaDepth"+MAX_DEPTH);
+        this.setBotName ("AlphaBetaDepth9");
         this.addAuthor ("Maxence");
     }
 

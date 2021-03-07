@@ -1,9 +1,8 @@
-package awele.bot.aaTraining.h5;
+package awele.bot.aaPoids.h7;
 
 import awele.bot.Bot;
 import awele.bot.CompetitorBot;
-import awele.bot.aaTraining.h5.minmax9.MinMaxBot;
-import awele.bot.aaTraining.h5.random.RandomBot;
+
 import awele.core.Awele;
 import awele.core.Board;
 import awele.core.InvalidBotException;
@@ -16,12 +15,12 @@ import java.util.List;
 public class MinMaxBot1 extends CompetitorBot {
 
     protected static final boolean DEBUG = false;
-    protected static final boolean LEARN = true;
+    protected static final boolean LEARN = false;
     protected static final int BUDGET = (int) 3e6;
     protected static int[] categories;
 
     //private static final int MAX_LEARNING_TIME = 1000 * 60 * 60 * 1; // 1 h
-    private static final int MAX_LEARNING_TIME = 1000 * 60 * 20 * 1; // 1 h
+    private static final int MAX_LEARNING_TIME = 1000 * 60 * 30 * 1; // 1 h
     protected static double startLearningTime;
     protected static double endLearningTime;
 
@@ -48,39 +47,70 @@ public class MinMaxBot1 extends CompetitorBot {
 
     ArrayList<String> categoriesStrings;
 
+    ArrayList<Integer> weights;
 
 
 
-    RandomBot random;
-    MinMaxBot minMaxBot9;
 
 
     ExplorationTree explorationTree;
 
     public MinMaxBot1() throws InvalidBotException {
-        this.setBotName("H5");
+        this.setBotName("H7");
         this.addAuthor("Maxence Schoirfer");
         this.explorationTree = new ExplorationTree();
 
+        this.weights = new ArrayList<>();
         //categoriesStrings = new ArrayList<>();
     }
 
     @Override
     public void learn() {
+        //   initCategories();
         startLearningTime = System.currentTimeMillis();
         categories = new int[14200];
 
         weightBase = new int[8];
-        Arrays.fill(weightBase, 12);
+
+        weightBase[0] = 12;
+        weightBase[1] = 12;
+        weightBase[2] = 18;
+        weightBase[3] = 21;
+        weightBase[4] = 2;
+        weightBase[5] = 12;
+        weightBase[6] = 1;
+        weightBase[7] = 16;
+
+
+
         bestWeight = weightBase;
         int count = 0;
         if (LEARN) {
             try {
-                random = new RandomBot();
-                minMaxBot9 = new MinMaxBot();
+
+
+                System.out.println("\n\n*********************************************** START SEARCH *****************************************************");
+                System.out.println("new best = " + Arrays.toString(bestWeight));
+                for (int i = 0; i < 10000; i++) {
+                    for (int j = 0; j < 10; j++) {
+                        int[] weight = compareWeightFeatures(bestWeight, mutateWeightFeatures(bestWeight.clone()));
+                        if (weight != bestWeight) {
+                            bestWeight = weight;
+                            System.out.println("new best = " + Arrays.toString(bestWeight));
+                        }
+                    }
+                    System.out.println("***********************************************");
+                    bestWeight = compareWeightFeatures(bestWeight, weightBase);
+                    if (bestWeight == weightBase) System.out.println("RESET BEST = " + Arrays.toString(bestWeight));
+                }
+
             } catch (InvalidBotException e) {
                 e.printStackTrace();
             }
+
+
+            //   parametrer delta
+
 
             this.explorationTree.weightFeatures = bestWeight;
             this.explorationTree.initialValueDelta = 1.15f;
@@ -89,13 +119,58 @@ public class MinMaxBot1 extends CompetitorBot {
                 upgradeCategories();
                 count++;
                 endLearningTime = System.currentTimeMillis();
+                System.out.println("Learning : " + ((endLearningTime - startLearningTime) / 1000));
+                System.out.println("Count : " + count);
             } while (endLearningTime - startLearningTime < MAX_LEARNING_TIME);
+            System.out.println("Fin Apprentissage");
         } else {
             this.explorationTree.weightFeatures = weightBase;
             this.explorationTree.initialValueDelta = 1.15f;
         }
     }
 
+
+    private int[] mutateWeightFeatures(int[] base) {
+        int index = 2 + (int) (Math.random() * ((7 - 2) + 1));
+        int newWeight = (int) (Math.random() * maxWeight);
+        base[index] = newWeight;
+        return base;
+    }
+
+    private int[] compareWeightFeatures(int[] weight1, int[] weight2) throws InvalidBotException {
+ //      System.out.println("*best = " + Arrays.toString(weight1));
+   //    System.out.println("*new = " + Arrays.toString(weight2));
+       MinMaxBot1 bo1 = new MinMaxBot1();
+        MinMaxBot1 bo2 = new MinMaxBot1();
+        int win1 = 0;
+        int win2 = 0;
+
+        ExplorationTree e1 = new ExplorationTree();
+        e1.initialValueDelta = 1.15f;
+        e1.weightFeatures = weight1;
+        bo1.explorationTree = e1;
+
+        ExplorationTree e2 = new ExplorationTree();
+        e2.initialValueDelta = 1.15f;
+        e2.weightFeatures = weight2;
+        bo2.explorationTree = e2;
+
+
+        Awele awele = new Awele(bo1, bo2);
+        for (int i = 0; i < 7; i++) {
+            awele.play();
+            if (awele.getWinner() == 0) win1++;
+            else if (awele.getWinner() == 1) win2++;
+        }
+
+        if (win1 > win2) {
+       //    System.out.println("*new Best[best] = " + Arrays.toString(weight1) + "\n");
+            return weight1;
+        } else {
+           // System.out.println("*new Best[nex] = " + Arrays.toString(weight2) + "\n");
+            return weight2;
+        }
+    }
 
     private void playGame(Bot opponent) throws InvalidBotException {
         Awele awele = new Awele(opponent, this);
@@ -106,9 +181,10 @@ public class MinMaxBot1 extends CompetitorBot {
 
     private void upgradeCategories() {
         try {
-            playGame(random);
-            playGame(minMaxBot9);
-       //     playGame(this);
+            //      playGame(random);
+           // playGame(minMaxBot9);
+            //  playGame(this);
+            System.out.println("\n");
         } catch (Exception e) {
             System.out.println(e.toString());
             System.exit(-1);
@@ -174,8 +250,6 @@ public class MinMaxBot1 extends CompetitorBot {
         //   saveCategories();
     }
 
-
-    /*
     private void saveCategories() {
         for (int i = 0; i < categories.length; i++) categoriesStrings.add(i + "/" + categories[i]);
         if (categoriesStrings.size() > 0) writeFile("data.txt", categoriesStrings);
@@ -208,7 +282,4 @@ public class MinMaxBot1 extends CompetitorBot {
             exc.printStackTrace();
         }
     }
-*/
-
 }
-

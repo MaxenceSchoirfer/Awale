@@ -1,8 +1,41 @@
 Mémoire totale : 4.0 GiB
-2 classes ont été trouvées
-class awele.bot.maxence.MinMaxBot1
+3 classes ont été trouvées
 class awele.bot.alphabetanosort.MinMaxBot
+class awele.bot.aaadeaph11.MinMaxBot
+class awele.bot.aaahumanoid.Humanoid
 
-Bot 1/2
-Classe : awele.bot.maxence.MinMaxBot1
-Nom du bot : MinMaxWithBudget
+Bot 1/3
+Classe : awele.bot.alphabetanosort.MinMaxBot
+Nom du bot : AlphaBetaDepth10
+Temps d'apprentissage : 00:00:00.000
+Durée d'une prise de décision : 00:00:00.145
+Usage mémoire : 406.6 KiB
+Usage mémoire maximum : 20.5 MiB
+
+Bot 2/3
+Classe : awele.bot.aaadeaph11.MinMaxBot
+Nom du bot : AlphaBetaDepth11
+Temps d'apprentissage : 00:00:00.000
+Durée d'une prise de décision : 00:00:00.390
+Usage mémoire : 1.2 KiB
+Usage mémoire maximum : 134.5 MiB
+
+Bot 3/3
+Classe : awele.bot.aaahumanoid.Humanoid
+Nom du bot : Humanoïd, the mad lion !
+Temps d'apprentissage : 00:00:28.992
+Durée d'une prise de décision : 00:00:00.100
+Usage mémoire : 85.2 KiB
+Usage mémoire maximum : 119.7 MiB
+
+3 bots ont été instanciés
+Durée du chargement : 00:00:53.256
+Mémoire utilisée : 4.0 MiB
+
+Que le championnat commence !
+
+Affrontement 1/3
+AlphaBetaDepth10 vs. AlphaBetaDepth11
+
+
+

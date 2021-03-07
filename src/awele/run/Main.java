@@ -29,7 +29,7 @@ public final class Main extends OutputWriter
     
     private static final String LOG_FILE = "awele.log";
     private static final String ANONYMOUS_LOG_FILE = "awele.anonymous.log";
-    private static final int NB_RUNS = 10;
+    private static final int NB_RUNS = 15;
     //private static final int NB_RUNS = 1;
     private static final int MAX_LEARNING_TIME = 1000 * 60 * 60 * 1 * 15; // 1 h
     private static final int MAX_DECISION_TIME = 200 *1000; // 100 ms
@@ -127,9 +127,8 @@ public final class Main extends OutputWriter
         {
             if (!Modifier.isAbstract (subClass.getModifiers ())){
            //     subClasses.add (subClass);
-                if (subClass.getPackageName().contains("alpha") || subClass.getPackageName().contains("maxence"))
+               // if (subClass.getPackageName().contains("aaafinalbot") || subClass.getPackageName().contains("alphabetanosort"))
                     subClasses.add (subClass);
-
             }
 
         }
@@ -163,12 +162,14 @@ public final class Main extends OutputWriter
                         this.printDisqual (bot.getName (), "temps d'apprentissage trop long");
                     else
                     {
+                        ArrayList<Long> decisiontimes = new ArrayList<>();
                         for (int i = 0; i < 1; i++) {
 
 
                         Awele awele = new Awele (bot, random);
                         awele.play ();
                         long decisionTime = (long) ((2 * awele.getRunningTime ()) / awele.getNbMoves ()) - randomAverageDecisionTime;
+                        decisiontimes.add(decisionTime);
                         this.print ("Durée d'une prise de décision : " + Main.formatDuration (decisionTime));
                         if (decisionTime > Main.MAX_DECISION_TIME)
                             this.printDisqual (bot.getName (), "durée d'une prise de décision trop long");
@@ -186,10 +187,19 @@ public final class Main extends OutputWriter
                             else
                                 this.bots.add (bot);
                         }
-                            System.out.println("--------------------------------------------------------------------------------\n\n");
+                        //    System.out.println("--------------------------------------------------------------------------------\n\n");
                         }
+
+
+//                        long s = 0;
+//                        for (Long l :decisiontimes) {
+//                            s += l;
+//                        }
+//                        this.print ("Durée moyenne d'une prise de décision : " + Main.formatDuration (s/decisiontimes.size()));
                     }
                 }
+
+
                 this.print ();
             }
             catch (Exception e)
@@ -312,6 +322,6 @@ public final class Main extends OutputWriter
         main.addOutput (new LogFileOutput (Main.LOG_FILE));
         main.addOutput (new LogFileOutput (Main.ANONYMOUS_LOG_FILE, true));
         main.loadBots ();
-        main.tournament ();
+       main.tournament ();
     }
 }
